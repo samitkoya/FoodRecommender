@@ -18,7 +18,7 @@ pinned: false
 
 When a customer adds **Chicken Biryani** to their cart, the system dynamically suggests **Raita** → then **Gulab Jamun** → then **Cold Drink**. As the cart state changes, the recommendations adapt instantly.
 
-🔗 **[Try the Live Demo →](https://huggingface.co/spaces/samitkoya/FoodRecommender)**
+🔗 **Live Deployment - https://huggingface.co/spaces/samitkoya/FoodRecommender**
 
 ---
 
