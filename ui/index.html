@@ -1,0 +1,1797 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FoodAI</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Google+Sans:wght@400;500;700&family=Google+Sans+Display:wght@400;700&family=Roboto:wght@300;400;500;700&display=swap"
+        rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet" />
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#1a73e8", "primary-dk": "#1557b0", "bg": "#0d1117", "surf": "#161b22", "surf2": "#21262d" },
+                    fontFamily: { sans: ["Google Sans", "Roboto", "sans-serif"], display: ["Google Sans Display", "Google Sans", "Roboto", "sans-serif"] }
+                }
+            }
+        }
+    </script>
+    <style>
+        * {
+            box-sizing: border-box
+        }
+
+        body {
+            font-family: "Google Sans", "Roboto", sans-serif;
+            background: #0d1117;
+            color: #e6edf3;
+            min-height: 100dvh;
+            transition: background .25s, color .25s
+        }
+
+        /* ── LIGHT MODE ── */
+        .light body {
+            background: #f8f9fa;
+            color: #1f2328
+        }
+
+        .light header {
+            background: rgba(248, 249, 250, .92) !important;
+            border-color: rgba(0, 0, 0, .08) !important
+        }
+
+        .light .cbtn {
+            background: rgba(26, 115, 232, .07);
+            border-color: rgba(26, 115, 232, .25)
+        }
+
+        .light .cbtn .cn {
+            color: #1f2328
+        }
+
+        .light .clist {
+            background: #fff;
+            border-color: #e1e4e8
+        }
+
+        .light .copt {
+            color: #57606a
+        }
+
+        .light .copt:hover {
+            background: rgba(26, 115, 232, .06);
+            color: #1f2328
+        }
+
+        .light .copt.sel {
+            color: #1a73e8
+        }
+
+        .light #searchInput {
+            background: #fff;
+            border-color: #d0d7de;
+            color: #1f2328
+        }
+
+        .light #searchInput::placeholder {
+            color: #8b949e
+        }
+
+        .light .rcard {
+            background: #fff;
+            border-color: #e1e4e8
+        }
+
+        .light .sheet {
+            background: #fff;
+            border-color: #d0d7de
+        }
+
+        .light .pill {
+            background: #d0d7de
+        }
+
+        .light .mrow:hover {
+            background: rgba(26, 115, 232, .05)
+        }
+
+        .light #mitems p.text-\[10px\] {
+            color: #57606a
+        }
+
+        .light #mcart {
+            border-color: rgba(26, 115, 232, .3) !important
+        }
+
+        .light .skel {
+            background: linear-gradient(90deg, #e1e4e8 25%, #f0f2f5 50%, #e1e4e8 75%) !important
+        }
+
+        .light nav {
+            background: rgba(255, 255, 255, .95) !important;
+            border-color: rgba(0, 0, 0, .08) !important
+        }
+
+        .light #toast {
+            background: #fff;
+            color: #1f2328;
+            border-color: #d0d7de
+        }
+
+        .light .crow {
+            border-color: #e1e4e8
+        }
+
+        .light .popt {
+            border-color: #e1e4e8
+        }
+
+        .light .popt.sel {
+            border-color: #1a73e8;
+            background: rgba(26, 115, 232, .06)
+        }
+
+        .light #pay-opts h3,
+        .light #pay-ok h3 {
+            color: #1f2328
+        }
+
+        .light #pay-load h3 {
+            color: #1f2328
+        }
+
+        .light #pay-load p,
+        .light #pay-opts p {
+            color: #57606a
+        }
+
+        .light #cart-ai-rail>div,
+        .light .ai-rec-card {
+            background: #f6f8fa !important;
+            border-color: #d0d7de !important
+        }
+
+        .light .rmbtn {
+            background: rgba(248, 81, 73, .1)
+        }
+
+        .light .mrow span.text-sm,
+        .light .mrow span.font-medium {
+            color: #1f2328
+        }
+
+        .light #mitems,
+        .light #search-results {
+            color: #1f2328
+        }
+
+        .light #mhdr p.font-bold {
+            color: #1f2328
+        }
+
+        .light #mhdr p.text-xs {
+            color: #57606a
+        }
+
+        .light .aibadge {
+            opacity: .92
+        }
+
+        .light #mai-list>div {
+            border-color: rgba(26, 115, 232, .2) !important
+        }
+
+        .light .cart-rest-lbl,
+        .light #cart-rest-lbl {
+            color: #57606a
+        }
+
+        .light #cart-content .crow span.text-sm {
+            color: #1f2328
+        }
+
+        .light #hist-content {
+            color: #1f2328
+        }
+
+        .light #prof-uid {
+            color: #57606a
+        }
+
+        .light #pay-load,
+        .light #pay-opts,
+        .light #pay-ok {
+            color: #1f2328
+        }
+
+        /* ══════════════════════════════════════
+           LAPTOP MODE — centered app shell
+        ══════════════════════════════════════ */
+
+        /* 1. Give the viewport a dark canvas */
+        body.laptop-mode {
+            background: #06090f !important;
+            display: block;
+            min-height: 100dvh;
+        }
+
+        /* 2. The app card: centered, constrained, floating */
+        body.laptop-mode #app-wrapper {
+            max-width: 860px;
+            margin: 0 auto;
+            min-height: 100dvh;
+            background: #0d1117;
+            box-shadow: 0 0 0 1px rgba(255,255,255,.06),
+                        0 24px 80px rgba(0,0,0,.7);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Light-mode variant */
+        .light body.laptop-mode {
+            background: #dde1e7 !important;
+        }
+        .light body.laptop-mode #app-wrapper {
+            background: #f8f9fa;
+        }
+
+        /* 3. Header: stays sticky inside the card */
+        body.laptop-mode header {
+            position: sticky !important;
+            top: 0 !important;
+            left: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+
+        /* 4. Nav: sticky at bottom of card, not fixed to viewport */
+        body.laptop-mode nav {
+            position: sticky !important;
+            bottom: 0 !important;
+            left: auto !important;
+            transform: none !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            margin-top: auto;
+        }
+
+        /* 5. Content sections — more generous padding */
+        body.laptop-mode #rest-section,
+        body.laptop-mode #search-section {
+            padding: 28px 36px 0 36px;
+        }
+
+        /* 6. Restaurant 2-col grid */
+        body.laptop-mode #rest-list {
+            display: grid !important;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        /* Error / empty state spans both columns and centers */
+        body.laptop-mode #rest-list > div:only-child,
+        body.laptop-mode #rest-list > p:only-child {
+            grid-column: 1 / -1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 280px;
+            text-align: center;
+        }
+
+        /* Skeleton items fill their grid cell properly */
+        body.laptop-mode #rest-list .skel {
+            height: 220px;
+        }
+
+        /* 7. Modals wider on desktop */
+        body.laptop-mode .sheet {
+            max-width: 620px;
+        }
+        body.laptop-mode .sheet.mid {
+            max-width: 480px;
+        }
+
+        /* Restaurant cards in laptop grid — taller image */
+        body.laptop-mode .rcard .aspect-video {
+            aspect-ratio: 16 / 9;
+            min-height: 180px;
+        }
+
+        body.laptop-mode .rcard {
+            height: 100%;
+        }
+
+        /* 8. Toast inside wrapper */
+        body.laptop-mode #toast {
+            bottom: 80px;
+        }
+
+        /* ── COMPREHENSIVE LIGHT MODE FIXES ── */
+        /* Fix hardcoded dark backgrounds in modals & pay-ok */
+        .light .sheet {
+            background: #fff !important;
+            border-color: #e1e4e8 !important;
+        }
+        .light #pay-ok {
+            background: #fff;
+            color: #1f2328;
+        }
+        .light #pay-ok .bg-\[#21262d\],
+        .light .bg-\[#21262d\] {
+            background: #f6f8fa !important;
+        }
+        .light #mcart {
+            background: rgba(26,115,232,.06) !important;
+        }
+        .light #msearch {
+            background: #f6f8fa !important;
+            border-color: #d0d7de !important;
+            color: #1f2328 !important;
+        }
+        .light #msearch::placeholder {
+            color: #8b949e !important;
+        }
+        .light .mrow {
+            background: #f6f8fa !important;
+            border-color: #e1e4e8 !important;
+        }
+        .light #cart-content .crow {
+            border-color: #e1e4e8 !important;
+        }
+        .light .popt {
+            background: #f6f8fa !important;
+        }
+        .light .popt.sel {
+            background: rgba(26,115,232,.06) !important;
+        }
+        .light #track-content .bg-\[#21262d\],
+        .light .track-info-box {
+            background: #f6f8fa !important;
+        }
+        .light #track-content p,
+        .light #track-content h4 {
+            color: #1f2328;
+        }
+        .light #track-content .text-\[#8b949e\] {
+            color: #57606a !important;
+        }
+        .light #track-eta {
+            color: #1f2328 !important;
+        }
+        .light .rcard {
+            box-shadow: 0 1px 8px rgba(0,0,0,.08);
+        }
+        .light #cart-ai-rail > div {
+            box-shadow: 0 1px 4px rgba(0,0,0,.06);
+        }
+        .light .close-btn-track {
+            background: #e1e4e8 !important;
+            color: #1f2328 !important;
+        }
+        .light button.bg-\[#21262d\], .light button.hover\:bg-\[#30363d\] {
+            background: #e1e4e8 !important;
+            color: #1f2328 !important;
+        }
+
+        /* Fix track modal close button and info box */
+        .light #trackModal .bg-\[#21262d\] {
+            background: #f6f8fa !important;
+            border: 1px solid #e1e4e8;
+        }
+        .light #payModal .bg-\[#21262d\] {
+            background: #f6f8fa !important;
+        }
+
+        /* Fix restaurant cards in light mode */
+        .light .rcard {
+            background: #fff !important;
+            border-color: #e1e4e8 !important;
+        }
+
+        /* Fix search results in light mode */
+        .light #search-results .mrow {
+            background: #fff !important;
+            border-color: #e1e4e8 !important;
+        }
+
+        /* Fix Track Order and Payment Success info boxes */
+        .light #track-content .bg-\[\#21262d\] {
+            background: #f6f8fa !important;
+            border-color: #e1e4e8 !important;
+        }
+        .light #pay-ok .bg-\[\#21262d\] {
+            background: #f6f8fa !important;
+            border-color: #e1e4e8 !important;
+        }
+
+        /* Fix bottom nav text in light mode */
+        .light nav a span.text-\[10px\] {
+            color: inherit;
+        }
+
+
+        .no-sb {
+            -ms-overflow-style: none;
+            scrollbar-width: none
+        }
+
+        .fill-1 {
+            font-variation-settings: 'FILL' 1
+        }
+
+        .pb-safe {
+            padding-bottom: env(safe-area-inset-bottom, 1rem)
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, .72);
+            -webkit-backdrop-filter: blur(6px);
+            backdrop-filter: blur(6px);
+            align-items: flex-end;
+            justify-content: center
+        }
+
+        .modal.open {
+            display: flex
+        }
+
+        .sheet {
+            background: #161b22;
+            width: 100%;
+            max-width: 480px;
+            border-radius: 20px 20px 0 0;
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-bottom: none;
+            max-height: 90dvh;
+            overflow-y: auto;
+            animation: up .28s cubic-bezier(.32, .72, 0, 1)
+        }
+
+        .sheet.mid {
+            border-radius: 20px;
+            margin: auto;
+            max-height: 85dvh;
+            width: 92%;
+            border-bottom: 1px solid rgba(255, 255, 255, .07)
+        }
+
+        @keyframes up {
+            from {
+                transform: translateY(56px);
+                opacity: 0
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1
+            }
+        }
+
+        .pill {
+            width: 36px;
+            height: 4px;
+            background: #30363d;
+            border-radius: 99px;
+            margin: 12px auto 4px
+        }
+
+        /* CITY DROPDOWN */
+        .cdrop {
+            position: relative
+        }
+
+        .cbtn {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            padding: 5px 10px 5px 8px;
+            border-radius: 99px;
+            border: 1px solid rgba(26, 115, 232, .3);
+            background: rgba(26, 115, 232, .08);
+            transition: background .2s, border-color .2s;
+            user-select: none
+        }
+
+        .cbtn:hover {
+            background: rgba(26, 115, 232, .16);
+            border-color: rgba(26, 115, 232, .5)
+        }
+
+        .cbtn .cn {
+            font-size: 13px;
+            font-weight: 600;
+            color: #e6edf3
+        }
+
+        .cbtn .chev {
+            font-size: 15px;
+            color: #1a73e8;
+            transition: transform .2s
+        }
+
+        .cbtn.open .chev {
+            transform: rotate(180deg)
+        }
+
+        .clist {
+            display: none;
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 160px;
+            background: #1c2128;
+            border: 1px solid rgba(48, 54, 61, .9);
+            border-radius: 12px;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, .5);
+            overflow: hidden;
+            z-index: 300
+        }
+
+        .clist.open {
+            display: block;
+            animation: drop .15s ease
+        }
+
+        @keyframes drop {
+            from {
+                opacity: 0;
+                transform: translateY(-6px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .copt {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #8b949e;
+            cursor: pointer;
+            transition: background .12s, color .12s
+        }
+
+        .copt:hover {
+            background: rgba(26, 115, 232, .1);
+            color: #e6edf3
+        }
+
+        .copt.sel {
+            color: #1a73e8
+        }
+
+        .cdot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: transparent;
+            flex-shrink: 0
+        }
+
+        .copt.sel .cdot {
+            background: #1a73e8
+        }
+
+        /* SKELETON */
+        @keyframes shim {
+            0% {
+                background-position: -500px 0
+            }
+
+            100% {
+                background-position: 500px 0
+            }
+        }
+
+        .skel {
+            background: linear-gradient(90deg, #21262d 25%, #30363d 50%, #21262d 75%);
+            background-size: 500px 100%;
+            animation: shim 1.4s infinite linear;
+            border-radius: 12px
+        }
+
+        /* CARDS */
+        .rcard {
+            transition: transform .18s, box-shadow .18s
+        }
+
+        .rcard:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(26, 115, 232, .12)
+        }
+
+        .mrow {
+            transition: background .12s;
+            border-radius: 10px
+        }
+
+        .mrow:hover {
+            background: rgba(26, 115, 232, .06)
+        }
+
+        /* PAYMENT OPTIONS */
+        .popt {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 16px;
+            border-radius: 12px;
+            border: 1.5px solid #21262d;
+            cursor: pointer;
+            transition: border-color .15s, background .15s;
+            font-size: 14px;
+            font-weight: 500
+        }
+
+        .popt:hover {
+            border-color: #1a73e8;
+            background: rgba(26, 115, 232, .05)
+        }
+
+        .popt.sel {
+            border-color: #1a73e8;
+            background: rgba(26, 115, 232, .08)
+        }
+
+        /* REMOVE BTN */
+        .rmbtn {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(248, 81, 73, .12);
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f85149;
+            transition: background .15s;
+            flex-shrink: 0
+        }
+
+        .rmbtn:hover {
+            background: rgba(248, 81, 73, .25)
+        }
+
+        /* AI BADGE */
+        .aibadge {
+            display: inline-flex;
+            align-items: center;
+            gap: 3px;
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: .05em;
+            background: linear-gradient(135deg, #1a73e8, #6f42c1);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 99px
+        }
+
+        /* SPINNER */
+        .spin {
+            animation: sp .9s linear infinite
+        }
+
+        @keyframes sp {
+            to {
+                transform: rotate(360deg)
+            }
+        }
+
+        /* CART ROW */
+        .crow {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #21262d
+        }
+
+        .crow:last-of-type {
+            border-bottom: none
+        }
+
+        /* TOAST */
+        #toast {
+            position: fixed;
+            bottom: 88px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #1c2128;
+            color: #e6edf3;
+            padding: 9px 18px;
+            border-radius: 99px;
+            font-size: 13px;
+            font-weight: 500;
+            border: 1px solid #30363d;
+            z-index: 9999;
+            opacity: 0;
+            transition: opacity .25s;
+            white-space: nowrap;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, .4);
+            pointer-events: none
+        }
+
+        #toast.show {
+            opacity: 1
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app-wrapper" class="flex flex-col min-h-screen">
+
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 bg-[#0d1117]/90 backdrop-blur-md border-b border-white/5 px-4 py-3">
+        <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-[#1a73e8] text-xl leading-none">location_on</span>
+                <div>
+                    <p class="text-[10px] font-medium text-[#8b949e] uppercase tracking-widest leading-none mb-1">
+                        Deliver to</p>
+                    <div class="cdrop" id="cdrop">
+                        <div class="cbtn" id="cbtn" onclick="toggleCity()">
+                            <span class="cn" id="cityName">Mumbai</span>
+                            <span class="material-symbols-outlined chev">expand_more</span>
+                        </div>
+                        <div class="clist" id="clist">
+                            <div class="copt sel" onclick="selectCity('Mumbai')" data-city="Mumbai"><span
+                                    class="cdot"></span>Mumbai</div>
+                            <div class="copt" onclick="selectCity('Delhi')" data-city="Delhi"><span
+                                    class="cdot"></span>Delhi</div>
+                            <div class="copt" onclick="selectCity('Bangalore')" data-city="Bangalore"><span
+                                    class="cdot"></span>Bangalore</div>
+                            <div class="copt" onclick="selectCity('Chennai')" data-city="Chennai"><span
+                                    class="cdot"></span>Chennai</div>
+                            <div class="copt" onclick="selectCity('Hyderabad')" data-city="Hyderabad"><span
+                                    class="cdot"></span>Hyderabad</div>
+                            <div class="copt" onclick="selectCity('Lucknow')" data-city="Lucknow"><span
+                                    class="cdot"></span>Lucknow</div>
+                            <div class="copt" onclick="selectCity('Ahmedabad')" data-city="Ahmedabad"><span
+                                    class="cdot"></span>Ahmedabad</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="text-base font-bold text-[#e6edf3]" id="app-title"
+                    style="font-family:'Google Sans Display',sans-serif"></span>
+                <button id="track-btn"
+                    class="hidden px-3 py-1.5 rounded-full bg-[#1a73e8]/10 text-[#1a73e8] hover:bg-[#1a73e8]/20 transition-colors text-xs font-bold flex items-center gap-1"
+                    onclick="openTrackModal()"><span
+                        class="material-symbols-outlined text-[14px]">local_shipping</span>Track Order</button>
+                <button onclick="toggleDimension()" id="dim-btn" title="Toggle mobile/laptop view"
+                    class="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/12 transition-colors border border-white/8">
+                    <span class="material-symbols-outlined text-[18px] text-[#8b949e]" id="dim-icon">smartphone</span>
+                </button>
+                <button onclick="toggleTheme()" id="theme-btn" title="Toggle light/dark mode"
+                    class="w-8 h-8 rounded-full flex items-center justify-center bg-white/5 hover:bg-white/12 transition-colors border border-white/8">
+                    <span class="material-symbols-outlined text-[18px] text-[#8b949e]" id="theme-icon">light_mode</span>
+                </button>
+            </div>
+        </div>
+        <div class="mt-3 relative">
+            <span
+                class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-[20px]">search</span>
+            <input id="searchInput" oninput="onSearch()" type="text" placeholder="Search dishes in your city..."
+                class="w-full h-11 pl-10 pr-4 rounded-xl bg-[#161b22] border border-[#30363d] focus:border-[#1a73e8] outline-none text-sm text-[#e6edf3] placeholder:text-[#8b949e] transition-colors" />
+        </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="flex-1 pb-24">
+        <section id="search-section" class="hidden px-4 pt-4">
+            <div class="flex items-center justify-between mb-3">
+                <p class="text-sm font-semibold">Results for "<span id="search-term" class="text-[#1a73e8]"></span>"</p>
+                <button onclick="clearSearch()" class="text-[#1a73e8] text-xs font-semibold">Clear</button>
+            </div>
+            <div id="search-results" class="flex flex-col gap-2"></div>
+        </section>
+        <section id="rest-section" class="px-4 pt-4">
+            <div class="flex items-center justify-between mb-3">
+                <div>
+                    <h2 class="text-base font-bold" style="font-family:'Google Sans Display',sans-serif">Restaurants in
+                        <span id="cityLabel">Mumbai</span>
+                    </h2>
+                    <p class="text-[11px] text-[#8b949e] mt-0.5">Tap to browse menu &amp; order</p>
+                </div>
+            </div>
+            <div id="rest-list" class="flex flex-col gap-4">
+                <div class="skel h-52 w-full"></div>
+                <div class="skel h-52 w-full"></div>
+                <div class="skel h-52 w-full"></div>
+            </div>
+        </section>
+    </main>
+
+    <!-- BOTTOM NAV -->
+    <nav class="fixed bottom-0 w-full bg-[#0d1117]/95 backdrop-blur-xl border-t border-white/5 pb-safe px-4 pt-2 z-50">
+        <div class="flex justify-around items-center max-w-md mx-auto">
+            <a href="#" onclick="scrollTo(0,0);return false;"
+                class="flex flex-col items-center gap-0.5 p-2 text-[#1a73e8]">
+                <span class="material-symbols-outlined text-[24px] fill-1">home</span>
+                <span class="text-[10px] font-semibold">Home</span>
+            </a>
+            <a href="#" onclick="openCartModal();return false;"
+                class="flex flex-col items-center gap-0.5 p-2 text-[#8b949e] hover:text-[#e6edf3] transition-colors relative">
+                <span class="material-symbols-outlined text-[24px]">shopping_cart</span>
+                <span class="text-[10px] font-semibold">Cart</span>
+                <span id="cart-badge"
+                    class="absolute top-1 right-1 h-4 w-4 rounded-full bg-[#1a73e8] text-[9px] font-bold text-white flex items-center justify-center hidden">0</span>
+            </a>
+            <a href="#" onclick="openProfileModal();return false;"
+                class="flex flex-col items-center gap-0.5 p-2 text-[#8b949e] hover:text-[#e6edf3] transition-colors">
+                <span class="material-symbols-outlined text-[24px]">person_outline</span>
+                <span class="text-[10px] font-semibold">Profile</span>
+            </a>
+        </div>
+    </nav>
+
+    <div id="toast"></div>
+
+    <!-- ══ MENU MODAL ══ -->
+    <div id="menuModal" class="modal" onclick="bd(event,'menuModal')">
+        <div class="sheet w-full max-w-lg">
+            <div class="pill"></div>
+            <div class="px-5 pb-6">
+                <div id="mhdr" class="flex items-center gap-3 mb-4"></div>
+
+                <!-- CART SUMMARY inside menu -->
+                <div id="mcart" class="hidden mb-4 p-3 rounded-xl border border-[#1a73e8]/25"
+                    style="background:rgba(26,115,232,.06)">
+                    <div class="flex items-center justify-between mb-2">
+                        <p class="text-xs font-bold text-[#1a73e8] uppercase tracking-wide">Cart</p>
+                        <span id="mcart-total" class="text-sm font-bold text-[#e6edf3]"></span>
+                    </div>
+                    <div id="mcart-items" class="flex flex-col gap-1 mb-3"></div>
+                    <button onclick="placeOrder()"
+                        class="w-full py-2.5 rounded-xl bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                        <span class="material-symbols-outlined text-[18px]">shopping_bag</span>Place Order
+                    </button>
+                </div>
+
+                <!-- AI SUGGESTIONS inside menu -->
+                <div id="mai" class="hidden mb-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="aibadge"><span class="material-symbols-outlined text-[11px]">auto_awesome</span>AI
+                            Picks</span>
+                        <p class="text-xs text-[#8b949e]">People also add</p>
+                    </div>
+                    <div id="mai-list" class="flex flex-col gap-2"></div>
+                </div>
+
+                <!-- Menu search -->
+                <div class="relative mb-3">
+                    <span
+                        class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-[#8b949e] text-[18px]">search</span>
+                    <input id="msearch" oninput="filterMenu()" type="text" placeholder="Search menu..."
+                        class="w-full pl-10 pr-4 h-10 rounded-xl bg-[#0d1117] border border-[#30363d] focus:border-[#1a73e8] text-sm text-[#e6edf3] placeholder:text-[#8b949e] outline-none transition-colors" />
+                </div>
+
+                <!-- Menu items -->
+                <div id="mitems"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ CART MODAL ══ -->
+    <div id="cartModal" class="modal" onclick="bd(event,'cartModal')">
+        <div class="sheet w-full max-w-lg">
+            <div class="pill"></div>
+            <div class="px-5 pb-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-xl bg-[#1a73e8]/15 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[#1a73e8] text-xl">shopping_cart</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold" style="font-family:'Google Sans Display',sans-serif">Your Cart
+                        </h2>
+                        <p class="text-xs text-[#8b949e]" id="cart-rest-lbl">—</p>
+                    </div>
+                </div>
+                <div id="cart-content"></div>
+
+                <!-- AI recs in cart -->
+                <div id="cart-ai" class="hidden mt-4">
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="aibadge"><span class="material-symbols-outlined text-[11px]">auto_awesome</span>AI
+                            Picks</span>
+                        <p class="text-xs text-[#8b949e]">Complete your meal</p>
+                    </div>
+                    <div id="cart-ai-rail" class="flex gap-2 overflow-x-auto no-sb pb-1"></div>
+                </div>
+
+                <button onclick="placeOrder()"
+                    class="mt-5 w-full py-3 rounded-xl bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-sm transition-colors flex items-center justify-center gap-2">
+                    <span class="material-symbols-outlined text-[18px]">shopping_bag</span>Place Order
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ PAYMENT MODAL ══ -->
+    <div id="payModal" class="modal" onclick="bd(event,'payModal')">
+        <div class="sheet mid">
+            <div class="px-6 py-6">
+                <!-- Step 1: loading -->
+                <div id="pay-load" class="flex flex-col items-center py-6">
+                    <div class="w-14 h-14 rounded-full border-[3px] border-[#1a73e8] border-t-transparent spin mb-4">
+                    </div>
+                    <h3 class="text-base font-bold mb-1">Loading payment options</h3>
+                    <p class="text-xs text-[#8b949e]">Connecting to gateway...</p>
+                </div>
+                <!-- Step 2: options -->
+                <div id="pay-opts" class="hidden">
+                    <h3 class="text-base font-bold mb-0.5" style="font-family:'Google Sans Display',sans-serif">Choose
+                        Payment</h3>
+                    <p class="text-xs text-[#8b949e] mb-4">Total: <span id="pay-total"
+                            class="text-[#e6edf3] font-semibold"></span></p>
+                    <div class="flex flex-col gap-2 mb-5">
+                        <div class="popt sel" onclick="selPay(this)"><span class="text-2xl">📱</span>
+                            <div>
+                                <p class="font-semibold text-sm">UPI / Google Pay</p>
+                                <p class="text-xs text-[#8b949e]">Any UPI app</p>
+                            </div>
+                        </div>
+                        <div class="popt" onclick="selPay(this)"><span class="text-2xl">💳</span>
+                            <div>
+                                <p class="font-semibold text-sm">Credit / Debit Card</p>
+                                <p class="text-xs text-[#8b949e]">Visa, Mastercard, RuPay</p>
+                            </div>
+                        </div>
+                        <div class="popt" onclick="selPay(this)"><span class="text-2xl">💵</span>
+                            <div>
+                                <p class="font-semibold text-sm">Cash on Delivery</p>
+                                <p class="text-xs text-[#8b949e]">Pay when food arrives</p>
+                            </div>
+                        </div>
+                        <div class="popt" onclick="selPay(this)"><span class="text-2xl">🏦</span>
+                            <div>
+                                <p class="font-semibold text-sm">Net Banking</p>
+                                <p class="text-xs text-[#8b949e]">All major banks</p>
+                            </div>
+                        </div>
+                    </div>
+                    <button onclick="confirmPay()"
+                        class="w-full py-3 rounded-xl bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-sm transition-colors">Confirm
+                        &amp; Pay</button>
+                    <button onclick="closeModal('payModal')"
+                        class="w-full mt-2 py-2 text-[#8b949e] hover:text-[#e6edf3] text-sm font-medium transition-colors">Cancel</button>
+                </div>
+                <!-- Step 3: success -->
+                <div id="pay-ok" class="hidden flex-col items-center py-2 text-center">
+                    <div class="w-16 h-16 rounded-full bg-green-500/10 flex items-center justify-center mb-3">
+                        <span class="material-symbols-outlined text-5xl text-green-400">check_circle</span>
+                    </div>
+                    <h3 class="text-lg font-bold mb-1">Order Placed! 🎉</h3>
+                    <p class="text-sm text-[#8b949e] mb-4">Your food is being prepared</p>
+                    <div class="track-info-box p-3 rounded-xl bg-[#21262d] text-left w-full mb-4">
+                        <p class="text-xs text-[#8b949e]">Estimated delivery</p>
+                        <p class="font-bold text-sm mt-0.5">30 – 45 minutes</p>
+                        <p class="text-xs text-[#8b949e] mt-2">Delivery partner</p>
+                        <p class="font-semibold text-sm mt-0.5">Rajan K. ⭐ 4.8 &nbsp;🛵 MH-02-AB-1234</p>
+                    </div>
+                    <button onclick="closeModal('payModal')"
+                        class="w-full py-3 rounded-xl bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-sm transition-colors">Done</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ PROFILE MODAL ══ -->
+    <div id="profileModal" class="modal" onclick="bd(event,'profileModal')">
+        <div class="sheet w-full max-w-lg">
+            <div class="pill"></div>
+            <div class="px-5 pb-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="w-10 h-10 rounded-full bg-[#1a73e8]/15 flex items-center justify-center">
+                        <span class="material-symbols-outlined text-[#1a73e8] text-2xl">account_circle</span>
+                    </div>
+                    <div>
+                        <h2 class="text-lg font-bold" style="font-family:'Google Sans Display',sans-serif">Profile</h2>
+                        <p class="text-xs text-[#8b949e]" id="prof-uid">—</p>
+                    </div>
+                </div>
+                <p class="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest mb-3">Previous Order</p>
+                <div id="hist-content" class="flex items-center justify-center min-h-[80px]">
+                    <div class="w-7 h-7 rounded-full border-2 border-[#1a73e8] border-t-transparent spin"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══ TRACK MODAL ══ -->
+    <div id="trackModal" class="modal" onclick="bd(event,'trackModal')">
+        <div class="sheet mid w-full max-w-sm">
+            <div class="px-6 py-6 text-center">
+                <h3 class="text-base font-bold mb-4" style="font-family:'Google Sans Display',sans-serif">Track Order
+                </h3>
+                <div id="track-loader" class="flex flex-col items-center py-4">
+                    <div class="w-10 h-10 rounded-full border-[3px] border-[#1a73e8] border-t-transparent spin mb-4">
+                    </div>
+                    <p class="text-xs text-[#8b949e]">Fetching latest status...</p>
+                </div>
+                <div id="track-content" class="hidden flex-col items-center py-2">
+                    <div
+                        class="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center mb-3 text-green-400">
+                        <span class="material-symbols-outlined text-4xl">local_shipping</span>
+                    </div>
+                    <h4 class="font-bold text-base mb-1" id="track-status">Order Received</h4>
+                    <p class="text-xs text-[#8b949e] mb-4" id="track-message">Connecting to delivery partner</p>
+
+                    <div class="track-info-box p-3 rounded-xl bg-[#21262d] text-left w-full mb-4">
+                        <p class="text-[10px] text-[#8b949e] uppercase tracking-wide">Delivery Executive</p>
+                        <p class="font-semibold text-sm mt-0.5" id="track-driver">Assigning...</p>
+                        <p class="text-xs text-[#8b949e] mt-1" id="track-vehicle">—</p>
+                    </div>
+
+                    <p class="text-xs text-[#8b949e] mb-1">Arriving in</p>
+                    <p class="text-2xl font-bold text-[#e6edf3]" id="track-eta">-- mins</p>
+                </div>
+                <button onclick="closeModal('trackModal')"
+                    class="w-full mt-4 py-3 rounded-xl bg-[#21262d] hover:bg-[#30363d] text-[#e6edf3] font-bold text-sm transition-colors">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════ JS ══════════════ -->
+    <script>
+        const BASE = ''; // Use relative path for production deploy
+        const REST_API = `${BASE}/v1/restaurants`;
+        const HIST_API = `${BASE}/v1/user/active/history`;
+        const REC_API = `${BASE}/v1/csao/recommend`;
+        const TRACK_API = `${BASE}/v1/order/track`;
+
+        let allRests = [], cityRests = [], menuCache = {};
+        let cart = [], cartD = [];   // cart ids, cart detailed (cartD uses qty field now)
+        let restId = null, restName = '', restCuisine = '';
+        // Helper: get quantity of item in cart by id
+        function cartQty(iid) { const k=String(iid); return cartD.filter(i=>String(i.id)===k).length; }
+        // Helper: flat cart ids for API
+        function flatCart() { return cartD.map(i=>String(i.id)); }
+        let city = 'Mumbai';
+        let userData = null, aiRecs = [];
+
+        const IMGS = {
+            'Italian':      'https://images.unsplash.com/photo-1551183053-bf91a1d81141?w=600&q=80',
+            'North Indian': 'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80',
+            'Chinese':      'https://images.unsplash.com/photo-1563245372-f21724e3856d?w=600&q=80',
+            'Healthy':      'https://images.unsplash.com/photo-1490645935967-10de6ba82944?w=600&q=80',
+            'Biryani':      'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=600&q=80',
+            'Burger':       'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80',
+            'Pizza':        'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&q=80',
+            'Awadhi':       'https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&q=80',
+            'Mughlai':      'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
+            'Street Food':  'https://images.unsplash.com/photo-1626229652216-e59500cb444d?w=600&q=80',
+            'South Indian': 'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=600&q=80',
+            'Gujarati':     'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&q=80',
+            // Additional cuisines missing from original map
+            'Bengali':      'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&q=80',
+            'Rajasthani':   'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=600&q=80',
+            'Punjabi':      'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&q=80',
+            'Seafood':      'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=600&q=80',
+            'Thai':         'https://images.unsplash.com/photo-1559314809-0d155014e29e?w=600&q=80',
+            'Continental':  'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=600&q=80',
+            'Mexican':      'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=600&q=80',
+            'Desserts':     'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=600&q=80',
+            'Snacks':       'https://images.unsplash.com/photo-1561758033-7e924f619b47?w=600&q=80',
+            'Rolls':        'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=600&q=80',
+            'Wraps':        'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=600&q=80',
+            'Sandwiches':   'https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&q=80',
+            'Noodles':      'https://images.unsplash.com/photo-1569050467447-ce54b3bbc37d?w=600&q=80',
+            'Kebabs':       'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=600&q=80',
+            'Chettinad':    'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=600&q=80',
+            'Maharashtrian':'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=600&q=80',
+            'Hyderabadi':   'https://images.unsplash.com/photo-1631515243349-e0cb75fb8d3a?w=600&q=80',
+            'Kashmiri':     'https://images.unsplash.com/photo-1544025162-d76694265947?w=600&q=80',
+            'Goan':         'https://images.unsplash.com/photo-1534482421-64566f976cfa?w=600&q=80',
+            'Kerala':       'https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=600&q=80',
+            'Andhra':       'https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=600&q=80',
+        };
+        const FALLBACK_IMG = 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80';
+        // Case-insensitive image lookup — handles chain restaurant prefixes like "Chain-Chinese"
+        function getRestImg(cuisine) {
+            if (!cuisine) return FALLBACK_IMG;
+            // Direct match first
+            if (IMGS[cuisine]) return IMGS[cuisine];
+            // Case-insensitive match
+            const lower = cuisine.toLowerCase();
+            for (const [k, v] of Object.entries(IMGS)) {
+                if (k.toLowerCase() === lower) return v;
+            }
+            // Partial match — handles "Chain-Chinese" -> "Chinese"
+            for (const [k, v] of Object.entries(IMGS)) {
+                if (lower.includes(k.toLowerCase()) || k.toLowerCase().includes(lower)) return v;
+            }
+            return FALLBACK_IMG;
+        }
+
+        /* ── BOOT ── */
+        document.addEventListener('DOMContentLoaded', () => {
+            loadRests();
+            document.addEventListener('click', e => {
+                if (!document.getElementById('cdrop').contains(e.target)) closeCity();
+            });
+        });
+
+        /* ── CITY ── */
+        function toggleCity() {
+            document.getElementById('clist').classList.toggle('open');
+            document.getElementById('cbtn').classList.toggle('open');
+        }
+        function closeCity() {
+            document.getElementById('clist').classList.remove('open');
+            document.getElementById('cbtn').classList.remove('open');
+        }
+        function selectCity(c) {
+            city = c;
+            document.getElementById('cityName').textContent = c;
+            document.querySelectorAll('.copt').forEach(el => el.classList.toggle('sel', el.dataset.city === c));
+            closeCity(); clearSearch(); applyCity();
+        }
+
+        /* ── RESTAURANTS ── */
+        async function loadRests() {
+            try {
+                const r = await fetch(REST_API);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                allRests = (await r.json()).restaurants || [];
+                applyCity();
+            } catch (e) {
+                document.getElementById('rest-list').innerHTML = `
+            <div style="grid-column:1/-1" class="flex flex-col items-center justify-center text-center py-16 gap-3">
+                <span class="material-symbols-outlined text-5xl text-red-400">wifi_off</span>
+                <p class="text-red-400 font-semibold text-sm">Backend not reachable</p>
+                <p class="text-[#8b949e] text-xs">Start server on localhost:8000</p>
+                <button onclick="loadRests()" class="mt-1 px-5 py-2.5 rounded-xl bg-[#1a73e8]/15 text-[#1a73e8] text-sm font-semibold hover:bg-[#1a73e8]/25 transition-colors">Retry</button>
+            </div>`;
+            }
+        }
+
+        function applyCity() {
+            document.getElementById('cityLabel').textContent = city;
+            let f = allRests.filter(r => r.city === city);
+            if (!f.length) f = allRests;
+            cityRests = f; menuCache = {};
+            renderRests(f);
+        }
+
+        function renderRests(list) {
+            const el = document.getElementById('rest-list');
+            if (!list.length) { el.innerHTML = '<p style="grid-column:1/-1" class="text-[#8b949e] text-sm text-center py-16">No restaurants found.</p>'; return; }
+            el.innerHTML = list.map(r => {
+                const px = r.price_range === 'budget' ? '₹' : r.price_range === 'premium' ? '₹₹₹' : '₹₹';
+                // Smart lookup handles chain prefixes like "Chain-Chinese" and case mismatches
+                const img = getRestImg(r.cuisine);
+                const dt = r.delivery_time || 35;
+                const fast = dt < 30 ? `<span class="absolute bottom-2 left-2 px-2 py-0.5 rounded-md bg-[#1a73e8] text-white text-[10px] font-bold">Fast Delivery</span>` : '';
+                return `
+        <div class="rcard rounded-2xl overflow-hidden bg-[#161b22] border border-[#21262d] cursor-pointer"
+             onclick="openMenu('${r.id}','${e(r.name)}','${e(r.cuisine || '')}')">
+            <div class="relative aspect-video overflow-hidden bg-[#21262d]">
+                <img src="${img}" alt="${r.cuisine || 'Food'}"
+                     class="absolute inset-0 w-full h-full object-cover hover:scale-105 transition-transform duration-700"
+                     onerror="this.src='https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=600&q=80';this.onerror=null;" loading="lazy" />
+                <div class="absolute inset-0 bg-gradient-to-t from-[#161b22]/80 to-transparent"></div>
+                <div class="absolute top-2 right-2 px-2 py-0.5 rounded-md bg-[#0d1117]/80 text-[11px] font-semibold flex items-center gap-1">
+                    <span class="material-symbols-outlined text-yellow-400 text-[12px] fill-1">star</span>${parseFloat(r.rating || 4).toFixed(1)}
+                </div>${fast}
+            </div>
+            <div class="px-4 py-3 flex justify-between items-center">
+                <div>
+                    <p class="font-bold">${r.name}</p>
+                    <p class="text-xs text-[#8b949e] mt-0.5">${r.cuisine || 'Multi-cuisine'} · ${dt} mins</p>
+                </div>
+                <div class="text-right">
+                    <p class="text-[#1a73e8] font-bold text-sm">${px}</p>
+                    <p class="text-[10px] text-[#8b949e] mt-0.5">View Menu →</p>
+                </div>
+            </div>
+        </div>`;
+            }).join('');
+        }
+
+        /* ── DISH SEARCH ── */
+        function onSearch() {
+            const q = document.getElementById('searchInput').value.trim().toLowerCase();
+            if (!q) { clearSearch(); return; }
+            document.getElementById('search-section').classList.remove('hidden');
+            document.getElementById('rest-section').classList.add('hidden');
+            document.getElementById('search-term').textContent = q;
+
+            const cids = new Set(cityRests.map(r => r.id));
+            let res = [];
+            for (const [rid, items] of Object.entries(menuCache)) {
+                if (!cids.has(rid)) continue;
+                const rn = (allRests.find(r => r.id === rid) || {}).name || '';
+                items.forEach(it => {
+                    if ((it.item_name || '').toLowerCase().includes(q) || (it.category || '').toLowerCase().includes(q))
+                        res.push({ ...it, _rid: rid, _rn: rn });
+                });
+            }
+            const con = document.getElementById('search-results');
+            if (!res.length) {
+                const unloaded = cityRests.filter(r => !menuCache[r.id]);
+                if (unloaded.length) {
+                    con.innerHTML = `<div class="text-center py-6"><div class="w-7 h-7 border-2 border-[#1a73e8] border-t-transparent rounded-full spin mx-auto mb-2"></div><p class="text-[#8b949e] text-sm">Loading menus...</p></div>`;
+                    Promise.all(unloaded.map(r => loadMenu(r.id))).then(() => onSearch());
+                } else {
+                    con.innerHTML = `<p class="text-[#8b949e] text-sm text-center py-6">No dishes found for "${q}"</p>`;
+                }
+                return;
+            }
+            con.innerHTML = res.map(it => {
+                const isVeg = it.is_veg === true || it.is_veg === 1 || it.is_veg === '1' || String(it.is_veg).toLowerCase() === 'true';
+                return `
+        <div class="mrow flex items-center justify-between px-3 py-3 bg-[#161b22] border border-[#21262d] rounded-xl">
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-sm flex-shrink-0 ${isVeg ? 'bg-green-500' : 'bg-red-500'}"></span>
+                    <p class="text-sm font-semibold truncate">${it.item_name}</p>
+                </div>
+                <p class="text-xs text-[#8b949e] mt-0.5 ml-4">${it.category || ''} · ${it._rn}</p>
+            </div>
+            <div class="flex items-center gap-3 ml-3 flex-shrink-0">
+                <span class="text-[#1a73e8] font-bold text-sm">₹${it.price}</span>
+                <button onclick="addItem('${it.item_id}','${e(it.item_name)}',${it.price},'${it._rid}','${e(it._rn)}')"
+                    class="px-3 py-1.5 rounded-lg bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-xs font-bold transition-colors">+ ADD</button>
+            </div>
+        </div>`;}).join('');
+        }
+        function clearSearch() {
+            document.getElementById('searchInput').value = '';
+            document.getElementById('search-section').classList.add('hidden');
+            document.getElementById('rest-section').classList.remove('hidden');
+        }
+
+        /* ── MENU MODAL ── */
+        const CORDER = { Starter: 0, Main: 1, Side: 2, Beverage: 3, Dessert: 4 };
+
+        async function openMenu(rid, rname, rcuisine) {
+            restId = rid; restName = rname; restCuisine = rcuisine;
+            document.getElementById('mhdr').innerHTML = `
+        <div class="w-11 h-11 rounded-xl bg-[#1a73e8]/10 flex items-center justify-center flex-shrink-0">
+            <span class="material-symbols-outlined text-[#1a73e8] text-2xl">storefront</span>
+        </div>
+        <div><p class="font-bold">${rname}</p><p class="text-xs text-[#8b949e]">${rcuisine}</p></div>`;
+            document.getElementById('mcart').classList.add('hidden');
+            document.getElementById('mai').classList.add('hidden');
+            document.getElementById('msearch').value = '';
+            document.getElementById('mitems').innerHTML = `<div class="flex flex-col gap-2"><div class="skel h-14 w-full"></div><div class="skel h-14 w-full"></div><div class="skel h-14 w-full"></div></div>`;
+            openModal('menuModal');
+            await loadMenu(rid);
+            renderMenu(rid);
+            syncMenuCart();
+            if (aiRecs.length) renderMenuAI(aiRecs);
+        }
+
+        async function loadMenu(rid) {
+            if (menuCache[rid]) return;
+            try {
+                const r = await fetch(`${BASE}/v1/restaurants/${rid}/menu`);
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const d = await r.json();
+                const raw = Array.isArray(d) ? d : (d.items || d.menu || []);
+                menuCache[rid] = dedupe(raw);
+            } catch (ex) { console.error('loadMenu:', ex); menuCache[rid] = []; }
+        }
+
+        /* Keep only cheapest entry per unique name+category — eliminates duplicates */
+        function dedupe(items) {
+            const map = {};
+            items.forEach(it => {
+                const key = (it.item_name || '').toLowerCase().trim() + '||' + (it.category || '').toLowerCase().trim();
+                const pr = parseFloat(it.price || 0);
+                if (!map[key] || pr < parseFloat(map[key].price || 0)) map[key] = it;
+            });
+            return Object.values(map);
+        }
+
+        function renderMenu(rid) {
+            const items = menuCache[rid] || [];
+            const con = document.getElementById('mitems');
+            if (!items.length) {
+                con.innerHTML = `<div class="text-center py-8"><span class="material-symbols-outlined text-4xl text-[#30363d] block mb-2">restaurant_menu</span><p class="text-[#8b949e] text-sm">No menu items found.</p><p class="text-[#6e7681] text-xs mt-1">Apply backend patch &amp; regenerate data.</p></div>`;
+                return;
+            }
+            const grp = {};
+            items.forEach(it => { const c = it.category || 'Other'; (grp[c] = grp[c] || []).push(it); });
+            const cats = Object.keys(grp).sort((a, b) => (CORDER[a] ?? 9) - (CORDER[b] ?? 9));
+            con.innerHTML = cats.map(cat => `
+        <p class="text-[10px] font-bold text-[#8b949e] uppercase tracking-widest mt-4 mb-1.5 first:mt-0">${cat}</p>
+        ${grp[cat].map(it => {
+                const iid = it.item_id ?? it.id ?? '', nm = it.item_name ?? it.name ?? 'Unknown', pr = parseFloat(it.price || 0);
+                // Normalize is_veg: backend may send true/false, 1/0, or strings "True"/"False"
+                const veg = it.is_veg === true || it.is_veg === 1 || it.is_veg === '1' || String(it.is_veg).toLowerCase() === 'true';
+                const rat = it.avg_rating ? parseFloat(it.avg_rating).toFixed(1) : null;
+                const qty = cartQty(iid);
+                const btnHtml = qty === 0
+                    ? `<button onclick="addItem('${iid}','${e(nm)}',${pr},'${rid}','${e(restName)}')"
+                        class="px-3 py-1.5 rounded-lg bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-xs font-bold transition-colors">+ ADD</button>`
+                    : `<div class="flex items-center gap-0 rounded-lg overflow-hidden border border-[#1a73e8]/40">
+                        <button onclick="removeOneItem('${iid}','menu')" class="px-2 py-1.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-sm font-bold transition-colors leading-none">−</button>
+                        <span class="px-2 text-xs font-bold text-[#1a73e8] min-w-[20px] text-center">${qty}</span>
+                        <button onclick="addItem('${iid}','${e(nm)}',${pr},'${rid}','${e(restName)}')" class="px-2 py-1.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-sm font-bold transition-colors leading-none">+</button>
+                    </div>`;
+                return `
+            <div class="mrow flex items-center justify-between px-3 py-2.5 mb-1" data-name="${nm.toLowerCase()}" data-cat="${cat.toLowerCase()}" data-iid="${iid}" data-nm="${e(nm)}" data-pr="${pr}" data-rid="${rid}" data-rn="${e(restName)}">
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2.5 h-2.5 rounded-sm border-2 flex-shrink-0 flex items-center justify-center ${veg ? 'border-green-500' : 'border-red-500'}">
+                            <span class="w-1 h-1 rounded-full ${veg ? 'bg-green-500' : 'bg-red-500'}"></span>
+                        </span>
+                        <span class="text-sm font-medium truncate">${nm}</span>
+                        ${it.is_popular ? `<span class="text-[9px] text-yellow-400 bg-yellow-400/10 border border-yellow-400/20 rounded px-1 font-bold flex-shrink-0">★ Popular</span>` : ''}
+                    </div>
+                    ${rat ? `<p class="text-[11px] text-[#8b949e] ml-4 mt-0.5">⭐ ${rat}</p>` : ''}
+                </div>
+                <div class="flex items-center gap-3 ml-3 flex-shrink-0">
+                    <span class="text-[#1a73e8] font-bold text-sm">₹${pr.toFixed(0)}</span>
+                    <div class="add-btn-wrap">${btnHtml}</div>
+                </div>
+            </div>`;
+            }).join('')}`).join('');
+        }
+
+        function filterMenu() {
+            const q = document.getElementById('msearch').value.toLowerCase();
+            document.querySelectorAll('#mitems .mrow').forEach(r => {
+                r.style.display = (!q || (r.dataset.name || '').includes(q) || (r.dataset.cat || '').includes(q)) ? '' : 'none';
+            });
+        }
+
+        function syncMenuCart() {
+            const mine = cartD.filter(i => i.restId === restId);
+            const box = document.getElementById('mcart');
+            if (!mine.length) { box.classList.add('hidden'); return; }
+            box.classList.remove('hidden');
+            const tot = mine.reduce((s, i) => s + i.price, 0);
+            document.getElementById('mcart-total').textContent = `₹${tot.toFixed(0)}`;
+            // Group by id
+            const grp = {};
+            mine.forEach(it => { const k = String(it.id); if (!grp[k]) grp[k] = { ...it, qty: 0 }; grp[k].qty++; });
+            document.getElementById('mcart-items').innerHTML = Object.values(grp).map(it => `
+        <div class="flex items-center justify-between">
+            <span class="text-xs flex-1 truncate">${it.name}</span>
+            <div class="flex items-center gap-1.5 ml-2 flex-shrink-0">
+                <span class="text-xs text-[#8b949e]">₹${(it.price * it.qty).toFixed(0)}</span>
+                <div class="flex items-center gap-0 rounded overflow-hidden border border-[#1a73e8]/40">
+                    <button onclick="removeOneItem('${it.id}','menu')" class="px-1.5 py-0.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-xs font-bold transition-colors">−</button>
+                    <span class="px-1.5 text-xs font-bold text-[#1a73e8]">${it.qty}</span>
+                    <button onclick="addItem('${it.id}','${e(it.name)}',${it.price},'${it.restId}','${e(it.restName)}')" class="px-1.5 py-0.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-xs font-bold transition-colors">+</button>
+                </div>
+            </div>
+        </div>`).join('');
+        }
+
+        function renderMenuAI(recs) {
+            const sec = document.getElementById('mai');
+            const lst = document.getElementById('mai-list');
+            // Filter out items already in cart
+            const cartIds = new Set(cartD.map(i => String(i.id)));
+            // Also filter out items not in the current restaurant's menu (cross-cuisine guard)
+            const menuItemIds = restId ? new Set((menuCache[restId] || []).map(i => String(i.item_id || i.id))) : null;
+            const filtered = recs.filter(r => {
+                if (cartIds.has(String(r.item_id))) return false;
+                if (menuItemIds && !menuItemIds.has(String(r.item_id))) return false;
+                return true;
+            });
+            if (!filtered.length) { sec.classList.add('hidden'); return; }
+            sec.classList.remove('hidden');
+            lst.innerHTML = filtered.slice(0, 4).map(r => `
+        <div class="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition-colors"
+             style="background:linear-gradient(135deg,rgba(26,115,232,.07),rgba(111,66,193,.07));border:1px solid rgba(26,115,232,.18)"
+             onclick="addItem('${r.item_id}','${e(r.item_name)}',${r.price},'${restId}','${e(restName)}')">
+            <div class="w-8 h-8 rounded-lg bg-[#1a73e8]/15 flex items-center justify-center flex-shrink-0">
+                <span class="material-symbols-outlined text-[#1a73e8] text-[18px]">restaurant</span>
+            </div>
+            <div class="flex-1 min-w-0">
+                <p class="text-sm font-semibold truncate">${r.item_name}</p>
+                <p class="text-xs text-[#8b949e]">${r.category} · ₹${r.price}</p>
+            </div>
+            <div class="flex flex-col items-end gap-1 flex-shrink-0">
+                <span class="aibadge"><span class="material-symbols-outlined text-[10px]">auto_awesome</span>${Math.round(r.score * 100)}%</span>
+                <span class="text-[10px] text-[#1a73e8] font-bold">+ ADD</span>
+            </div>
+        </div>`).join('');
+        }
+
+        /* ── CART ── */
+        function addItem(iid, iname, price, rid, rname) {
+            if (cartD.length && restId !== rid) {
+                if (!confirm(`Clear cart from ${restName} and start fresh from ${rname}?`)) return;
+                cart = []; cartD = [];
+            }
+            restId = rid; restName = rname;
+            cart.push(String(iid));
+            cartD.push({ id: iid, name: iname, price: parseFloat(price), restId: rid, restName: rname });
+            syncBadge(); syncMenuCart(); refreshAddButtons(); toast(`${iname} added`);
+            fetchRecs();
+        }
+
+        function removeOneItem(iid, ctx) {
+            const k = String(iid);
+            // find last occurrence and remove it
+            let idx = -1;
+            for (let i = cartD.length - 1; i >= 0; i--) { if (String(cartD[i].id) === k) { idx = i; break; } }
+            if (idx === -1) return;
+            cart.splice(idx, 1); cartD.splice(idx, 1);
+            if (!cartD.length) { restId = null; restName = ''; aiRecs = []; }
+            syncBadge(); syncMenuCart(); refreshAddButtons();
+            if (ctx === 'cart') renderCartContent();
+            fetchRecs();
+        }
+
+        // Refresh +ADD / stepper buttons in open menu modal
+        function refreshAddButtons() {
+            document.querySelectorAll('#mitems .mrow[data-iid]').forEach(row => {
+                const iid = row.dataset.iid, nm = row.dataset.nm, pr = parseFloat(row.dataset.pr), rid2 = row.dataset.rid, rn2 = row.dataset.rn;
+                const qty = cartQty(iid);
+                const btnWrap = row.querySelector('.add-btn-wrap');
+                if (!btnWrap) return;
+                if (qty === 0) {
+                    btnWrap.innerHTML = `<button onclick="addItem('${iid}','${e(nm)}',${pr},'${rid2}','${e(rn2)}')"
+                        class="px-3 py-1.5 rounded-lg bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-xs font-bold transition-colors">+ ADD</button>`;
+                } else {
+                    btnWrap.innerHTML = `<div class="flex items-center gap-0 rounded-lg overflow-hidden border border-[#1a73e8]/40">
+                        <button onclick="removeOneItem('${iid}','menu')" class="px-2 py-1.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-sm font-bold transition-colors leading-none">−</button>
+                        <span class="px-2 text-xs font-bold text-[#1a73e8] min-w-[20px] text-center">${qty}</span>
+                        <button onclick="addItem('${iid}','${e(nm)}',${pr},'${rid2}','${e(rn2)}')" class="px-2 py-1.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-sm font-bold transition-colors leading-none">+</button>
+                    </div>`;
+                }
+            });
+        }
+
+        function syncBadge() {
+            const b = document.getElementById('cart-badge');
+            b.textContent = cartD.length;
+            b.classList.toggle('hidden', !cartD.length);
+            document.getElementById('cart-rest-lbl').textContent = restName || '—';
+        }
+
+        function openCartModal() { renderCartContent(); openModal('cartModal'); }
+
+        function renderCartContent() {
+            const con = document.getElementById('cart-content');
+            if (!cartD.length) {
+                con.innerHTML = '<p class="text-[#8b949e] text-sm text-center py-6">Your cart is empty.</p>';
+                document.getElementById('cart-ai').classList.add('hidden');
+                return;
+            }
+            // Group by item id
+            const grouped = {};
+            cartD.forEach(it => {
+                const k = String(it.id);
+                if (!grouped[k]) grouped[k] = { ...it, qty: 0 };
+                grouped[k].qty++;
+            });
+            let tot = 0;
+            con.innerHTML = Object.values(grouped).map(it => {
+                tot += it.price * it.qty;
+                return `<div class="crow">
+            <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${it.name}</p><p class="text-xs text-[#8b949e]">₹${it.price.toFixed(0)} each</p></div>
+            <div class="flex items-center gap-2 ml-3 flex-shrink-0">
+                <div class="flex items-center gap-0 rounded-lg overflow-hidden border border-[#1a73e8]/40">
+                    <button onclick="removeOneItem('${it.id}','cart')" class="px-2 py-1.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-sm font-bold transition-colors leading-none">−</button>
+                    <span class="px-2 text-xs font-bold text-[#1a73e8] min-w-[20px] text-center">${it.qty}</span>
+                    <button onclick="addItem('${it.id}','${e(it.name)}',${it.price},'${it.restId}','${e(it.restName)}')" class="px-2 py-1.5 bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-sm font-bold transition-colors leading-none">+</button>
+                </div>
+                <span class="text-sm font-semibold text-[#e6edf3] min-w-[40px] text-right">₹${(it.price * it.qty).toFixed(0)}</span>
+            </div>
+        </div>`;
+            }).join('') + `<div class="flex justify-between items-center pt-3 border-t border-[#21262d] mt-1">
+        <span class="font-bold">Total</span><span class="font-bold text-[#1a73e8] text-lg">₹${tot.toFixed(0)}</span>
+    </div>`;
+            renderCartAI();
+        }
+
+        function renderCartAI() {
+            const sec = document.getElementById('cart-ai'), rail = document.getElementById('cart-ai-rail');
+            // Filter out items already in cart AND items not in current restaurant menu (cross-cuisine guard)
+            const cartIds = new Set(cartD.map(i => String(i.id)));
+            const menuItemIds = restId ? new Set((menuCache[restId] || []).map(i => String(i.item_id || i.id))) : null;
+            const filtered = aiRecs.filter(r => {
+                if (cartIds.has(String(r.item_id))) return false;
+                if (menuItemIds && !menuItemIds.has(String(r.item_id))) return false;
+                return true;
+            });
+            if (!filtered.length) { sec.classList.add('hidden'); return; }
+            sec.classList.remove('hidden');
+            rail.innerHTML = filtered.slice(0, 5).map(r => `
+        <div class="flex-shrink-0 w-36 rounded-xl bg-[#161b22] border border-[#21262d] p-2.5 flex flex-col items-center gap-1">
+            <span class="aibadge mb-0.5"><span class="material-symbols-outlined text-[10px]">auto_awesome</span>${Math.round(r.score * 100)}%</span>
+            <p class="text-xs font-semibold text-center line-clamp-2">${r.item_name}</p>
+            <p class="text-[10px] text-[#8b949e]">${r.category}</p>
+            <p class="text-xs font-bold text-[#1a73e8]">₹${r.price}</p>
+            <button onclick="addItem('${r.item_id}','${e(r.item_name)}',${r.price},'${restId}','${e(restName)}')"
+                class="w-full py-1 rounded-lg bg-[#1a73e8]/15 hover:bg-[#1a73e8] text-[#1a73e8] hover:text-white text-xs font-bold transition-colors mt-0.5">+ ADD</button>
+        </div>`).join('');
+        }
+
+        /* ── PLACE ORDER → PAYMENT ── */
+        function placeOrder() {
+            if (!cartD.length) { toast('Cart is empty'); return; }
+            const tot = cartD.reduce((s, i) => s + i.price, 0);
+            document.getElementById('pay-total').textContent = `₹${tot.toFixed(0)}`;
+            // reset steps
+            document.getElementById('pay-load').style.display = 'flex';
+            document.getElementById('pay-opts').classList.add('hidden');
+            document.getElementById('pay-ok').classList.add('hidden');
+            document.getElementById('pay-ok').style.display = '';
+            closeModal('cartModal'); closeModal('menuModal');
+            openModal('payModal');
+            setTimeout(() => { document.getElementById('pay-load').style.display = 'none'; document.getElementById('pay-opts').classList.remove('hidden'); }, 1800);
+        }
+
+        function selPay(el) { document.querySelectorAll('.popt').forEach(o => o.classList.remove('sel')); el.classList.add('sel'); }
+
+        function confirmPay() {
+            document.getElementById('pay-opts').classList.add('hidden');
+            document.getElementById('pay-load').style.display = 'flex';
+            document.querySelector('#pay-load h3').textContent = 'Processing payment...';
+            document.querySelector('#pay-load p').textContent = 'Please wait';
+            setTimeout(() => {
+                document.getElementById('pay-load').style.display = 'none';
+                const ok = document.getElementById('pay-ok'); ok.classList.remove('hidden'); ok.style.display = 'flex';
+                // clear cart
+                cart = []; cartD = []; restId = null; restName = ''; aiRecs = [];
+                syncBadge();
+                document.getElementById('mcart').classList.add('hidden');
+                document.getElementById('mai').classList.add('hidden');
+
+                // Show track button
+                const tb = document.getElementById('track-btn');
+                tb.classList.remove('hidden');
+                tb.dataset.orderId = 'ORD-' + Math.floor(Math.random() * 1000000);
+            }, 2000);
+        }
+
+        /* ── AI RECS ── */
+        async function fetchRecs() {
+            if (!cart.length || !restId) {
+                aiRecs = [];
+                document.getElementById('mai').classList.add('hidden');
+                document.getElementById('cart-ai').classList.add('hidden');
+                return;
+            }
+            try {
+                // Send full cart array (including duplicate IDs for quantity-aware scoring on backend)
+                // Backend uses set internally for candidate exclusion, so dupes are fine
+                const r = await fetch(REC_API, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: String(userData ? userData.user_id : '1'),
+                        restaurant_id: String(restId),
+                        cart_items: [...new Set(cart)], // send unique IDs — backend excludes these from candidates
+                        n_recommendations: 6,
+                        context: { meal_time: 'lunch' }
+                    })
+                });
+                if (!r.ok) return;
+                aiRecs = (await r.json()).recommendations || [];
+                renderMenuAI(aiRecs);
+                renderCartAI();
+            } catch (ex) { console.error('fetchRecs:', ex); }
+        }
+
+        /* ── PROFILE ── */
+        function openProfileModal() { openModal('profileModal'); loadHistory(); }
+
+        // Store last history data globally so reorder button can access it safely
+        let _lastHistoryData = null;
+
+        async function loadHistory() {
+            const con = document.getElementById('hist-content');
+            con.innerHTML = '<div class="w-7 h-7 rounded-full border-2 border-[#1a73e8] border-t-transparent spin"></div>';
+            try {
+                const r = await fetch(HIST_API); if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                const d = await r.json();
+                _lastHistoryData = d; // store globally for reorder button
+                userData = d;
+                document.getElementById('prof-uid').textContent = `User ID: ${d.user_id || '—'}`;
+                const items = d.items || [];
+                const tot = d.total || items.reduce((s, i) => s + i.price * (i.quantity || 1), 0);
+                const tm = d.order_time ? new Date(d.order_time).toLocaleString() : '—';
+                con.innerHTML = `
+            <div class="rounded-xl border border-[#21262d] p-4 w-full" style="background:rgba(26,115,232,.04)">
+                <div class="flex justify-between items-start mb-3">
+                    <div><p class="font-bold">${d.restaurant_name || 'Restaurant'}</p><p class="text-xs text-[#8b949e] mt-0.5">${tm}</p><p class="text-xs text-[#6e7681]">Order #${d.order_id || '—'}</p></div>
+                    <span class="bg-[#1a73e8] text-white text-xs font-bold px-2 py-1 rounded-lg">₹${parseFloat(tot).toFixed(0)}</span>
+                </div>
+                <div class="flex flex-col gap-1 mb-4">${items.map(it => `
+                    <div class="flex justify-between text-sm py-1 border-b border-[#21262d]">
+                        <span>${it.quantity || 1}× ${it.item_name}</span>
+                        <span class="text-[#8b949e]">₹${(it.price * (it.quantity || 1)).toFixed(0)}</span>
+                    </div>`).join('')}</div>
+                <button onclick="reorderFromHistory()"
+                    class="w-full py-2.5 rounded-xl bg-[#1a73e8] hover:bg-[#1557b0] text-white font-bold text-sm transition-colors flex items-center justify-center gap-1">
+                    <span class="material-symbols-outlined text-[16px]">replay</span>Reorder
+                </button>
+            </div>`;
+            } catch (ex) {
+                con.innerHTML = `<div class="text-center py-4"><span class="material-symbols-outlined text-3xl text-[#30363d]">history</span><p class="text-[#8b949e] text-sm mt-2">No previous orders found.</p><p class="text-[#6e7681] text-xs mt-0.5">${ex.message}</p></div>`;
+            }
+        }
+
+        // Called by the Reorder button — uses _lastHistoryData stored in JS (no inline JSON in HTML)
+        function reorderFromHistory() {
+            if (!_lastHistoryData) { toast('No order data available'); return; }
+            reorder(_lastHistoryData.restaurant_id, _lastHistoryData.restaurant_name, _lastHistoryData.items || []);
+        }
+
+        async function reorder(oldRid, oldRname, items) {
+            closeModal('profileModal');
+            toast('Setting up reorder...');
+
+            // Ensure all city restaurant menus are loaded first
+            const unloaded = cityRests.filter(r => !menuCache[r.id]);
+            if (unloaded.length) {
+                await Promise.all(unloaded.map(r => loadMenu(r.id)));
+            }
+
+            // Try to find the exact same restaurant in current city
+            let targetRest = cityRests.find(r => String(r.id) === String(oldRid));
+
+            if (!targetRest) {
+                // Score each restaurant by how many of the reorder items they carry
+                const itemNames = items.map(i => (i.item_name || '').toLowerCase());
+                let bestScore = -1;
+                for (const rest of cityRests) {
+                    const menuItems = (menuCache[rest.id] || []).map(m => (m.item_name || '').toLowerCase());
+                    const score = itemNames.filter(n => menuItems.some(m => m.includes(n) || n.includes(m))).length;
+                    if (score > bestScore) { bestScore = score; targetRest = rest; }
+                }
+                if (!targetRest) targetRest = cityRests[0];
+                if (targetRest) toast(`Matched to ${targetRest.name} in your city`);
+            }
+
+            if (!targetRest) { toast('No restaurants found in this city'); return; }
+
+            const rid   = String(targetRest.id);
+            const rname = targetRest.name;
+
+            // Ensure target menu is loaded
+            if (!menuCache[rid]) await loadMenu(rid);
+            const targetMenu = menuCache[rid] || [];
+
+            // Build new cart — set state before pushing items
+            restId = rid; restName = rname;
+            cart = []; cartD = [];
+
+            for (const item of items) {
+                // Find matching item in target menu by name (case-insensitive)
+                const match = targetMenu.find(m =>
+                    (m.item_name || '').toLowerCase().trim() === (item.item_name || '').toLowerCase().trim()
+                );
+                const qty = parseInt(item.quantity) || 1;
+                for (let q = 0; q < qty; q++) {
+                    if (match) {
+                        cart.push(String(match.item_id));
+                        cartD.push({ id: String(match.item_id), name: match.item_name, price: parseFloat(match.price), restId: rid, restName: rname });
+                    } else {
+                        // Fallback: use original item data with new restaurant
+                        cart.push(String(item.item_id));
+                        cartD.push({ id: String(item.item_id), name: item.item_name, price: parseFloat(item.price), restId: rid, restName: rname });
+                    }
+                }
+            }
+
+            syncBadge();
+            const totalItems = cartD.length;
+            toast(`${totalItems} item${totalItems !== 1 ? 's' : ''} added to cart · ${rname}`);
+            document.getElementById('track-btn').classList.add('hidden');
+            fetchRecs();
+        }
+
+        /* ── TRACK ORDER ── */
+        async function openTrackModal() {
+            const tb = document.getElementById('track-btn');
+            const orderId = tb ? tb.dataset.orderId || 'ORD-TEST' : 'ORD-TEST';
+            openModal('trackModal');
+            document.getElementById('track-loader').style.display = 'flex';
+            document.getElementById('track-content').classList.add('hidden');
+
+            try {
+                const r = await fetch(`${TRACK_API}/${orderId}`);
+                if (!r.ok) throw new Error('API Error');
+                const d = await r.json();
+
+                document.getElementById('track-status').textContent = d.status || 'Order Updated';
+                document.getElementById('track-message').textContent = d.message || 'Tracking your order';
+                document.getElementById('track-driver').textContent = d.driver || 'Partner assigned';
+                document.getElementById('track-vehicle').textContent = d.vehicle || 'On the way';
+                document.getElementById('track-eta').textContent = (d.eta_mins || '--') + ' mins';
+
+            } catch (e) {
+                document.getElementById('track-status').textContent = 'Status unknown';
+                document.getElementById('track-message').textContent = 'Could not fetch status';
+            } finally {
+                setTimeout(() => {
+                    document.getElementById('track-loader').style.display = 'none';
+                    document.getElementById('track-content').classList.remove('hidden');
+                    document.getElementById('track-content').style.display = 'flex';
+                }, 800);
+            }
+        }
+
+        /* ── MODAL UTILS ── */
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+        function bd(ev, id) { if (ev.target === document.getElementById(id)) closeModal(id); }
+
+        /* ── THEME ── */
+        function toggleTheme() {
+            const isLight = document.documentElement.classList.toggle('light');
+            document.documentElement.classList.toggle('dark', !isLight);
+            const icon = document.getElementById('theme-icon');
+            const btn = document.getElementById('theme-btn');
+            if (isLight) {
+                icon.textContent = 'dark_mode';
+                icon.style.color = '#1a73e8';
+                document.getElementById('app-title').style.color = '#1f2328';
+                btn.style.background = 'rgba(26,115,232,.08)';
+                btn.style.borderColor = 'rgba(26,115,232,.2)';
+            } else {
+                icon.textContent = 'light_mode';
+                icon.style.color = '#8b949e';
+                document.getElementById('app-title').style.color = '#e6edf3';
+                btn.style.background = 'rgba(255,255,255,.05)';
+                btn.style.borderColor = 'rgba(255,255,255,.08)';
+            }
+        }
+
+        /* ── DIMENSION TOGGLE ── */
+        let isLaptopMode = false;
+        function toggleDimension() {
+            isLaptopMode = !isLaptopMode;
+            const icon = document.getElementById('dim-icon');
+            const btn = document.getElementById('dim-btn');
+            if (isLaptopMode) {
+                document.body.classList.add('laptop-mode');
+                icon.textContent = 'laptop_mac';
+                icon.style.color = '#1a73e8';
+                btn.style.background = 'rgba(26,115,232,.08)';
+                btn.style.borderColor = 'rgba(26,115,232,.2)';
+            } else {
+                document.body.classList.remove('laptop-mode');
+                icon.textContent = 'smartphone';
+                icon.style.color = '#8b949e';
+                btn.style.background = 'rgba(255,255,255,.05)';
+                btn.style.borderColor = 'rgba(255,255,255,.08)';
+            }
+        }
+
+        /* ── UTIL ── */
+        function e(s) { return String(s).replace(/'/g, "\\'").replace(/"/g, '&quot;'); }
+        let _tt;
+        function toast(msg) {
+            const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show');
+            clearTimeout(_tt); _tt = setTimeout(() => t.classList.remove('show'), 2400);
+        }
+    </script>
+    </div><!-- end app-wrapper -->
+</body>
+</html>
