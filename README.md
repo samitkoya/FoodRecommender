@@ -326,7 +326,7 @@ If you prefer to audit, debug, or execute steps individually:
 
 ## Hugging Face Spaces Deployment
 
-🔗 **Live Demo**: [https://huggingface.co/spaces/samitkoya/FoodRecommender](https://huggingface.co/spaces/samitkoya/FoodRecommender)
+[**Live Deployment**](https://huggingface.co/spaces/samitkoya/FoodRecommender)
 
 This repository is fully configured for deployment on **Hugging Face Spaces** using a `Dockerfile` SDK.
 
