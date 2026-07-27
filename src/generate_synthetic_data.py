@@ -954,9 +954,9 @@ def postprocess_flat(flat_df):
 # ════════════════════════════════════════════════════════════════════════════
 
 def validate_and_report(flat_df):
-    print("\n" + "═" * 62)
+    print("\n" + "=" * 62)
     print("  DATASET VALIDATION REPORT")
-    print("═" * 62)
+    print("=" * 62)
     print(f"  Rows          : {len(flat_df):,}")
     print(f"  Columns       : {len(flat_df.columns)}")
 

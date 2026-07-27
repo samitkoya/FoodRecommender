@@ -27,15 +27,6 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, conlist
 from typing import List, Optional
-from google import genai
-from dotenv import load_dotenv
-
-load_dotenv()
-try:
-    gemini_client = genai.Client(api_key=os.environ.get("GEMINI_API_KEY", ""))
-except Exception as e:
-    print("Warning: Gemini client not initialized", e)
-    gemini_client = None
 
 warnings.filterwarnings("ignore")
 
@@ -535,47 +526,11 @@ def recommend(req: RecommendRequest):
         cart_cats.add(ITEMS_DICT.get(cid, {}).get("category", ""))
 
     recs = []
-    
-    # Send chosen items to Gemini to generate taglines
-    gemini_prompt = "You are an AI assistant for a food delivery app. A user has these items in their cart:\n"
-    cart_item_names = [ITEMS_DICT.get(cid, {}).get("item_name", "Unknown") for cid in req.cart_items]
-    gemini_prompt += ", ".join(cart_item_names) + "\n\n"
-    gemini_prompt += "Here are some recommended add-ons:\n"
-    
-    candidate_details = []
-    for rank, idx in enumerate(selected_idx, 1):
-        iid = candidate_ids[idx]
-        item = ITEMS_DICT.get(iid, {})
-        candidate_details.append(f"{rank}. {item.get('item_name', 'Unknown')}")
-    
-    gemini_prompt += "\n".join(candidate_details) + "\n\n"
-    gemini_prompt += "For each recommended item, write a short, catchy 1-sentence tagline explaining why it pairs perfectly with the cart.\n"
-    gemini_prompt += "Return ONLY a JSON array of strings in the exact same order as the recommendations. No markdown formatting."
-    
-    taglines = []
-    try:
-        if os.environ.get("GEMINI_API_KEY") and gemini_client:
-            resp = gemini_client.models.generate_content(
-                model='gemini-1.5-flash',
-                contents=gemini_prompt
-            )
-            # Try to parse JSON array from response
-            text = resp.text.strip()
-            if text.startswith("```json"): text = text[7:]
-            if text.endswith("```"): text = text[:-3]
-            taglines = json.loads(text.strip())
-    except Exception as e:
-        print(f"Gemini error: {e}")
-        
     for rank, idx in enumerate(selected_idx, 1):
         iid = candidate_ids[idx]
         item = ITEMS_DICT.get(iid, {})
         cat = item.get("category", "Unknown")
         
-        tagline = "Perfect addition to your meal!"
-        if rank - 1 < len(taglines):
-            tagline = taglines[rank - 1]
-            
         recs.append(RecommendationItem(
             item_id=str(iid),
             item_name=str(item.get("item_name", "Unknown")),
@@ -585,7 +540,7 @@ def recommend(req: RecommendRequest):
             rank=rank,
             reason=determine_reason(cat, cart_cats),
             is_veg=bool(item.get("is_veg", False)),
-            tagline=tagline
+            tagline="Perfect addition to your meal!"
         ))
 
     latency = (time.time() - t0) * 1000
@@ -597,19 +552,9 @@ def recommend(req: RecommendRequest):
     )
 
 
-@app.post("/recommend")
-def recommend_legacy(req: RecommendRequest):
-    """Legacy endpoint for backwards compatibility."""
-    return recommend(req)
-
-
 # Mount static files correctly
 if os.path.exists(UI_DIR):
     app.mount("/ui", StaticFiles(directory=UI_DIR), name="ui")
-    
-    @app.get("/")
-    def serve_index():
-        return FileResponse(os.path.join(UI_DIR, "index.html"))
 
 if __name__ == "__main__":
     import uvicorn

@@ -16,10 +16,8 @@ import pandas as pd
 import numpy as np
 from sklearn.metrics import roc_auc_score
 import lightgbm as lgb
-import optuna
 
 warnings.filterwarnings("ignore")
-optuna.logging.set_verbosity(optuna.logging.WARNING)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA_DIR = os.path.join(BASE_DIR, "data")
@@ -112,54 +110,18 @@ def train_lightgbm(train_df, val_df, test_df, feature_cols):
 
     print(f"  Train: {X_train.shape}, Val: {X_val.shape}, Test: {X_test.shape}")
 
-    # Optuna tuning
-    N_TRIALS = 15
-    print(f"  Running Optuna ({N_TRIALS} trials)...")
-
-    def objective(trial):
-        params = {
-            "objective": "lambdarank",
-            "metric": "ndcg",
-            "ndcg_eval_at": [5, 10],
-            "verbose": -1,
-            "n_jobs": -1,
-            "learning_rate": trial.suggest_float("learning_rate", 0.01, 0.2, log=True),
-            "num_leaves": trial.suggest_int("num_leaves", 15, 127),
-            "min_child_samples": trial.suggest_int("min_child_samples", 5, 50),
-            "subsample": trial.suggest_float("subsample", 0.5, 1.0),
-            "colsample_bytree": trial.suggest_float("colsample_bytree", 0.5, 1.0),
-            "reg_alpha": trial.suggest_float("reg_alpha", 1e-3, 10.0, log=True),
-            "reg_lambda": trial.suggest_float("reg_lambda", 1e-3, 10.0, log=True),
-            "max_depth": trial.suggest_int("max_depth", 3, 12),
-        }
-
-        lgb_train = lgb.Dataset(X_train, label=y_train, group=train_groups, free_raw_data=False)
-        lgb_val = lgb.Dataset(X_val, label=y_val, group=val_groups, reference=lgb_train, free_raw_data=False)
-
-        model = lgb.train(
-            params, lgb_train,
-            num_boost_round=300,
-            valid_sets=[lgb_val],
-            callbacks=[lgb.early_stopping(30, verbose=False), lgb.log_evaluation(0)],
-        )
-
-        preds = model.predict(X_val)
-        val_copy = val_df.copy()
-        val_copy["score"] = preds
-        metrics = evaluate_per_group(val_copy, "score")
-        return metrics.get("ndcg@5", 0)
-
-    study = optuna.create_study(direction="maximize", sampler=optuna.samplers.TPESampler(seed=42))
-    study.optimize(objective, n_trials=N_TRIALS, show_progress_bar=False)
-
-    best_params = study.best_trial.params
-    print(f"  Best NDCG@5: {study.best_value:.4f}")
-
-    # Train final model
+    # Model training with tuned parameters
     final_params = {
-        "objective": "lambdarank", "metric": "ndcg",
-        "ndcg_eval_at": [3, 5, 10], "verbose": -1, "n_jobs": -1,
-        **best_params,
+        "objective": "lambdarank",
+        "metric": "ndcg",
+        "ndcg_eval_at": [3, 5, 10],
+        "learning_rate": 0.05,
+        "num_leaves": 31,
+        "min_child_samples": 20,
+        "subsample": 0.8,
+        "colsample_bytree": 0.8,
+        "verbose": -1,
+        "n_jobs": -1,
     }
 
     lgb_train = lgb.Dataset(X_train, label=y_train, group=train_groups, free_raw_data=False)
@@ -205,7 +167,7 @@ def train_lightgbm(train_df, val_df, test_df, feature_cols):
     with open(os.path.join(MODEL_DIR, "feature_cols.pkl"), "wb") as f:
         pickle.dump(feature_cols, f)
 
-    return model, metrics, auc, best_params
+    return model, metrics, auc, final_params
 
 
 # ═══════════════════════════════════════════

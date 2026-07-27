@@ -75,7 +75,6 @@ LGB_PARAMS = {
 
 NUM_BOOST_ROUNDS = 500
 EARLY_STOPPING_ROUNDS = 50
-N_OPTUNA_TRIALS = 20
 
 # ── GRU Model ──
 GRU_CONFIG = {
@@ -90,17 +89,12 @@ GRU_CONFIG = {
 # ── Ensemble ──
 EARLY_EXIT_THRESHOLD = 0.85
 
-CIRCUIT_BREAKER_CONFIG = {
-    "lgb": {"max_latency_ms": 15, "fallback": "popularity"},
-    "gru": {"max_latency_ms": 25, "fallback": "lgb_only"},
-    "cf":  {"max_latency_ms": 10, "fallback": "lgb_only"},
-}
-
 # ── Cold Start Thresholds ──
-COLD_START_USER_ORDER_THRESHOLD = 3
+COLD_START_USER_THRESHOLD = 3
 COLD_START_ITEM_INTERACTION_THRESHOLD = 50
 
 # ── API ──
 API_HOST = "0.0.0.0"
 API_PORT = 8000
 DEFAULT_TOP_N = 10
+

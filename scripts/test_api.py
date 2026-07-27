@@ -50,7 +50,7 @@ def test_single_cart():
     print(f"    Cold start: {data.get('is_cold_start', 'N/A')}")
     print(f"    Top Recommendations:")
     for rec in data["recommendations"][:5]:
-        print(f"      [{rec['category']:10s}] {rec['item_name']:30s} ₹{rec['price']:.0f}  score={rec['score']}")
+        print(f"      [{rec['category']:10s}] {rec['item_name']:30s} Rs.{rec['price']:.0f}  score={rec['score']}")
     return True
 
 

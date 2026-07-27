@@ -21,11 +21,6 @@ MODEL_DIR = os.path.join(BASE_DIR, "models")
 DATA_DIR = os.path.join(BASE_DIR, "data")
 
 EARLY_EXIT_THRESHOLD = 0.85
-CIRCUIT_BREAKER_CONFIG = {
-    "lgb": {"max_latency_ms": 15, "fallback": "popularity"},
-    "gru": {"max_latency_ms": 25, "fallback": "lgb_only"},
-    "cf":  {"max_latency_ms": 10, "fallback": "lgb_only"},
-}
 
 FEATURE_COLS = [
     "user_segment_enc", "user_order_frequency", "user_avg_order_value",
@@ -179,9 +174,9 @@ class EnsembleRanker:
                 scores.append(float(np.mean(s)) if s else 0.0)
         return np.array(scores)
 
-    async def rank(self, features_df, cart_item_ids, candidate_ids, context):
+    def rank(self, features_df, cart_item_ids, candidate_ids, context):
         """
-        Run ensemble ranking with parallel execution and early exit.
+        Run ensemble ranking with sequential model scoring and early exit.
 
         Returns: (final_scores, latency_info)
         """
@@ -200,9 +195,6 @@ class EnsembleRanker:
             latency_info["path"] = "early_exit_lgb"
             latency_info["lgb_ms"] = round(lgb_ms, 2)
             return lgb_scores, latency_info
-
-        # Run GRU and CF in parallel (via asyncio)
-        loop = asyncio.get_event_loop()
 
         t1 = time.time()
         gru_scores = self._run_gru(cart_item_ids, candidate_ids)
@@ -239,26 +231,8 @@ class EnsembleRanker:
         return final_scores, latency_info
 
     def rank_sync(self, features_df, cart_item_ids, candidate_ids, context):
-        """Synchronous wrapper for the async rank method."""
-        try:
-            loop = asyncio.get_event_loop()
-            if loop.is_running():
-                # If we're already in an async context, run directly
-                import concurrent.futures
-                with concurrent.futures.ThreadPoolExecutor() as pool:
-                    future = pool.submit(
-                        asyncio.run,
-                        self.rank(features_df, cart_item_ids, candidate_ids, context)
-                    )
-                    return future.result()
-            else:
-                return loop.run_until_complete(
-                    self.rank(features_df, cart_item_ids, candidate_ids, context)
-                )
-        except RuntimeError:
-            return asyncio.run(
-                self.rank(features_df, cart_item_ids, candidate_ids, context)
-            )
+        """Synchronous alias for rank method."""
+        return self.rank(features_df, cart_item_ids, candidate_ids, context)
 
     def apply_diversity_filter(self, scores, candidate_ids, items_dict, top_n=10):
         """Apply category diversity penalty to avoid recommending all of one type."""

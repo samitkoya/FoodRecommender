@@ -161,11 +161,6 @@ def main():
     cuisine_co = build_cuisine_co_occurrence(items_df, co_matrix)
 
     # Save cold-start artifacts
-    cold_start_data = {
-        "city_popularity": city_pop.to_dict("records") if not city_pop.empty else [],
-        "cuisine_co_occurrence_pairs": len(cuisine_co),
-    }
-
     with open(os.path.join(MODEL_DIR, "cold_start_data.pkl"), "wb") as f:
         pickle.dump({
             "city_pop": city_pop,
