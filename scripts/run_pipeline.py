@@ -16,6 +16,12 @@ Run: python scripts/run_pipeline.py
 
 import sys, os, time
 
+# Ensure UTF-8 output encoding on Windows consoles
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SRC_DIR = os.path.join(BASE_DIR, "src")
 sys.path.insert(0, BASE_DIR)
