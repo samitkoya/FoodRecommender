@@ -77,8 +77,9 @@ RESTS_DICT = RESTS_DF.to_dict("index")
 
 REST_ITEMS = {}
 for item_id, row in ITEMS_DF.iterrows():
-    rid = row["restaurant_id"]
-    REST_ITEMS.setdefault(rid, []).append(item_id)
+    rid = str(row["restaurant_id"])
+    REST_ITEMS.setdefault(rid, []).append(str(item_id))
+
 
 CO_LOOKUP = {}
 co_path = os.path.join(MODEL_DIR, "co_occurrence_matrix.pkl")
@@ -298,6 +299,89 @@ def get_restaurants():
             "delivery_time": int(row.get("avg_delivery_time_min", 30)),
         })
     return {"restaurants": rest_list}
+
+def get_dish_image(item_name, category, cuisine):
+    name = str(item_name).lower()
+    cat = str(category).lower()
+    cui = str(cuisine).lower()
+
+    if any(k in name for k in ['lassi', 'tea', 'coffee', 'sharbat', 'drink', 'beverage', 'soda', 'shake', 'juice']):
+        return 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['biryani', 'pulao', 'rice']):
+        return 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['salan', 'curry', 'gravy', 'qorma', 'nihari', 'dal', 'paneer', 'butter chicken', 'korma', 'kofta', 'pasanda', 'masala']):
+        return 'https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['haleem', 'soup', 'stew']):
+        return 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['naan', 'roti', 'paratha', 'bread', 'kulcha', 'sheermal', 'bhatura']):
+        return 'https://images.unsplash.com/photo-1626074353765-517a681e40be?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['dosa', 'uttapam', 'idli', 'vada', 'sambar']):
+        return 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['pizza']):
+        return 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['dim sum', 'dumpling', 'momos', 'bao']):
+        return 'https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['waffle', 'pancake', 'crepe']):
+        return 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['meetha', 'kheer', 'halwa', 'gulab jamun', 'sweet', 'dessert', 'ice cream', 'cake', 'falooda', 'zarda', 'sewain']):
+        return 'https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['kebab', 'tikka', 'starter', 'appetizer', 'roll', 'salad']):
+        return 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=600&auto=format&fit=crop&q=80'
+    if any(k in name for k in ['noodle', 'chowmein', 'manchurian', 'fried rice']):
+        return 'https://images.unsplash.com/photo-1585032226651-759b368d7246?w=600&auto=format&fit=crop&q=80'
+
+    if 'beverage' in cat:
+        return 'https://images.unsplash.com/photo-1513558161293-cdaf765ed2fd?w=600&auto=format&fit=crop&q=80'
+    if 'dessert' in cat or 'desserts' in cui:
+        return 'https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600&auto=format&fit=crop&q=80'
+    if 'side' in cat:
+        return 'https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=600&auto=format&fit=crop&q=80'
+    if 'starter' in cat:
+        return 'https://images.unsplash.com/photo-1541544741938-0af808871cc0?w=600&auto=format&fit=crop&q=80'
+
+    return 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&auto=format&fit=crop&q=80'
+
+@app.get("/v1/dishes")
+def get_dishes(city: Optional[str] = None, limit: int = 100):
+    """Return catalog dishes with kitchen details and city attributes."""
+    dishes = []
+
+    count = 0
+    for iid, row in ITEMS_DF.iterrows():
+        rid = str(row.get("restaurant_id", ""))
+        rest = RESTS_DICT.get(rid) or RESTS_DICT.get(int(rid) if rid.isdigit() else rid) or {}
+        rest_name = rest.get("name", f"Kitchen #{rid}")
+        rest_city = rest.get("city", "Mumbai")
+
+        if city and city.lower() != "all" and rest_city.lower() != city.lower():
+            continue
+
+        item_name = str(row.get("item_name", "Dish"))
+        cuisine = str(row.get("cuisine_type", rest.get("cuisine_type", ""))).lower()
+        cat = str(row.get("category", "Main")).lower()
+
+        img = get_dish_image(item_name, cat, cuisine)
+
+        dishes.append({
+            "item_id": str(iid),
+            "restaurant_id": rid,
+            "restaurant_name": rest_name,
+            "city": rest_city,
+            "item_name": item_name,
+            "category": str(row.get("category", "Main")),
+            "price": round(float(row.get("price", 199)), 2),
+            "is_veg": bool(row.get("is_veg", True)),
+            "avg_rating": round(float(row.get("avg_rating", 4.5)), 1),
+            "is_popular": bool(row.get("is_popular", False)),
+            "image": img,
+            "desc": f"Freshly prepared {item_name} from {rest_name} in {rest_city}."
+        })
+        count += 1
+        if count >= limit:
+            break
+
+    return {"dishes": dishes}
+
 
 @app.get("/v1/restaurants/{restaurant_id}/menu")
 def get_restaurant_menu(restaurant_id: str):

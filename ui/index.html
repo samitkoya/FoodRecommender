@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>FoodAI — The Pin Board & Thermal Order Ticket System</title>
+    <title>Food Recommender — Order Ticket & CSAO System</title>
     
     <!-- Google Fonts: Fraunces (Variable Display), Inter (Body), JetBrains Mono (Data/Utility) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -318,6 +318,20 @@
             color: var(--ink);
         }
 
+        input, select, button {
+            font-family: inherit;
+        }
+
+        .search-input, .search-input::placeholder {
+            font-family: var(--font-body) !important;
+            font-size: 0.9rem;
+        }
+
+        .search-input::placeholder {
+            color: var(--ink-faint);
+            opacity: 0.85;
+        }
+
         .search-icon {
             position: absolute;
             left: 0.85rem;
@@ -367,6 +381,16 @@
             border-radius: 4px;
             color: var(--ink);
             cursor: pointer;
+            transition: all 0.15s ease;
+        }
+
+        .sort-select:hover {
+            border-color: var(--red);
+        }
+
+        .sort-select option {
+            background: var(--paper-raised);
+            color: var(--ink);
         }
 
         /* ─── MAIN MASONRY DISH BOARD ─── */
@@ -399,8 +423,10 @@
         }
 
         .pin-grid {
-            column-count: 4;
-            column-gap: 24px;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 24px;
+            width: 100%;
         }
 
         @media (max-width: 1100px) { .pin-grid { column-count: 3; } }
@@ -1015,8 +1041,7 @@
     <!-- TOP NAVBAR -->
     <nav class="navbar">
         <a href="#" class="brand-logo" onclick="switchView('dishes')">
-            <span class="brand-title">FoodAI</span>
-            <span class="brand-badge">The Pin Board</span>
+            <span class="brand-title">Food Recommender</span>
         </a>
 
         <div class="nav-links">
@@ -1063,6 +1088,10 @@
                 </div>
 
                 <div class="filter-group">
+                    <select class="sort-select" id="city-select" onchange="handleCityFilter(this.value)">
+                        <option value="All">All Cities 📍</option>
+                    </select>
+
                     <div class="diet-toggle">
                         <button class="diet-btn active" onclick="setDietFilter('all', this)">All</button>
                         <button class="diet-btn" onclick="setDietFilter('veg', this)">🟢 Veg</button>
@@ -1183,40 +1212,25 @@
 
     <!-- FOOTER -->
     <footer class="footer">
-        <p>FoodAI — Tactile Paper & Thermal Order Ticket System</p>
+        <p>Food Recommender — Tactile Paper & Thermal Order Ticket System</p>
         <div class="api-status-pill">
             <span class="status-dot" id="status-dot"></span>
             <span id="api-status-text">Connecting to CSAO Model Engine...</span>
         </div>
     </footer>
 
+    <!-- DATASET SCRIPT (Loads all 600 restaurants & 18k+ menu item catalog from CSV dataset) -->
+    <script src="dataset.js"></script>
+
     <!-- APP SCRIPT -->
     <script>
         /* ─── DATA ENGINE & STATE ─── */
-        const API_BASE = "http://localhost:8080";
+        const API_BASE = window.location.origin.includes("http") ? window.location.origin : "http://localhost:8000";
 
-        // Mock Database fallback matching 19,027 item catalog & 600 kitchens schema
-        const MOCK_RESTAURANTS = [
-            { id: "rest_1", name: "Biryani Blues", city: "Mumbai", cuisine: "Hyderabadi", price_range: "mid", rating: 4.8, delivery_time: 25 },
-            { id: "rest_2", name: "Pizza Express", city: "Delhi", cuisine: "Italian", price_range: "premium", rating: 4.7, delivery_time: 30 },
-            { id: "rest_3", name: "Punjab Grill", city: "Chandigarh", cuisine: "North Indian", price_range: "premium", rating: 4.9, delivery_time: 35 },
-            { id: "rest_4", name: "Mainland China", city: "Kolkata", cuisine: "Chinese", price_range: "mid", rating: 4.6, delivery_time: 28 },
-            { id: "rest_5", name: "The Belgian Waffle", city: "Bangalore", cuisine: "Desserts", price_range: "budget", rating: 4.8, delivery_time: 20 },
-            { id: "rest_6", name: "Dosa Express", city: "Chennai", cuisine: "South Indian", price_range: "budget", rating: 4.7, delivery_time: 22 }
-        ];
+        // Real dataset catalog loaded from restaurants.csv & menu_items.csv via dataset.js
+        const MOCK_RESTAURANTS = window.DATASET && window.DATASET.restaurants ? window.DATASET.restaurants : [];
+        const MOCK_DISHES = window.DATASET && window.DATASET.dishes ? window.DATASET.dishes : [];
 
-        const MOCK_DISHES = [
-            { item_id: "item_101", restaurant_id: "rest_1", restaurant_name: "Biryani Blues", item_name: "Chicken Dum Biryani", category: "Main", price: 349.0, is_veg: false, avg_rating: 4.9, is_popular: true, image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop&q=80", desc: "Slow-cooked fragrant basmati rice with succulent spiced chicken." },
-            { item_id: "item_102", restaurant_id: "rest_1", restaurant_name: "Biryani Blues", item_name: "Mirchi Ka Salan", category: "Side", price: 129.0, is_veg: true, avg_rating: 4.6, is_popular: false, image: "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80", desc: "Traditional Hyderabadi green chili curry with peanut-sesame gravy." },
-            { item_id: "item_103", restaurant_id: "rest_1", restaurant_name: "Biryani Blues", item_name: "Double Ka Meetha", category: "Dessert", price: 149.0, is_veg: true, avg_rating: 4.8, is_popular: true, image: "https://images.unsplash.com/photo-1551024709-8f23befc6f87?w=600&auto=format&fit=crop&q=80", desc: "Crispy fried bread soaked in saffron spiced milk and roasted nuts." },
-            { item_id: "item_104", restaurant_id: "rest_2", restaurant_name: "Pizza Express", item_name: "Truffle Mushroom Pizza", category: "Main", price: 549.0, is_veg: true, avg_rating: 4.8, is_popular: true, image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?w=600&auto=format&fit=crop&q=80", desc: "Wild forest mushrooms, black truffle oil, and creamy fior di latte." },
-            { item_id: "item_105", restaurant_id: "rest_2", restaurant_name: "Pizza Express", item_name: "Garlic Dough Balls", category: "Side", price: 199.0, is_veg: true, avg_rating: 4.7, is_popular: true, image: "https://images.unsplash.com/photo-1541745537411-b8046dc6d66c?w=600&auto=format&fit=crop&q=80", desc: "Fresh baked artisan dough balls with garlic herb dip." },
-            { item_id: "item_106", restaurant_id: "rest_3", restaurant_name: "Punjab Grill", item_name: "Butter Chicken", category: "Main", price: 429.0, is_veg: false, avg_rating: 4.9, is_popular: true, image: "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format&fit=crop&q=80", desc: "Tandoori chicken simmered in rich creamy tomato and butter gravy." },
-            { item_id: "item_107", restaurant_id: "rest_3", restaurant_name: "Punjab Grill", item_name: "Garlic Butter Naan", category: "Side", price: 79.0, is_veg: true, avg_rating: 4.8, is_popular: false, image: "https://images.unsplash.com/photo-1626074353765-517a681e40be?w=600&auto=format&fit=crop&q=80", desc: "Clay oven baked flatbread brushed with garlic butter." },
-            { item_id: "item_108", restaurant_id: "rest_4", restaurant_name: "Mainland China", item_name: "Dim Sum Basket", category: "Appetizer", price: 329.0, is_veg: true, avg_rating: 4.7, is_popular: true, image: "https://images.unsplash.com/photo-1496116218417-1a781b1c416c?w=600&auto=format&fit=crop&q=80", desc: "Steamed crystal dumplings with edamame and water chestnut." },
-            { item_id: "item_109", restaurant_id: "rest_5", restaurant_name: "The Belgian Waffle", item_name: "Nutella Chocolate Waffle", category: "Dessert", price: 189.0, is_veg: true, avg_rating: 4.9, is_popular: true, image: "https://images.unsplash.com/photo-1562376552-0d160a2f238d?w=600&auto=format&fit=crop&q=80", desc: "Golden crispy waffle smothered in warm Nutella and dark cocoa dust." },
-            { item_id: "item_110", restaurant_id: "rest_6", restaurant_name: "Dosa Express", item_name: "Ghee Roast Masala Dosa", category: "Main", price: 179.0, is_veg: true, avg_rating: 4.8, is_popular: true, image: "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600&auto=format&fit=crop&q=80", desc: "Crispy rice crepe roasted in pure ghee with spiced potato filling." }
-        ];
 
         // Pairing lookup for CSAO fallback model
         const MOCK_PAIRINGS = {
@@ -1240,6 +1254,7 @@
             cart: [],
             savedItems: new Set(),
             activeCategory: "All",
+            activeCity: "All",
             dietFilter: "all",
             searchQuery: "",
             sortBy: "popular",
@@ -1250,9 +1265,19 @@
                     step: 2,
                     items: ["Chicken Dum Biryani", "Mirchi Ka Salan"],
                     total: 478,
-                    driver: "Rajan K. ⭐ 4.8",
-                    vehicle: "🛵 MH-02-AB-1234",
+                    driver: "Vikram S. ⭐ 4.9",
+                    vehicle: "⚡ EV Scooter MH-12-EQ-9082",
                     eta_mins: 22
+                },
+                {
+                    order_id: "ORD-3412",
+                    status: "Delivered to Doorstep",
+                    step: 4,
+                    items: ["Truffle Mushroom Pizza", "Garlic Dough Balls"],
+                    total: 748,
+                    driver: "Priya Patel ⭐ 4.9",
+                    vehicle: "🛵 KA-05-EV-4512",
+                    eta_mins: 0
                 }
             ],
             apiConnected: false
@@ -1261,6 +1286,7 @@
         /* ─── INITIALIZATION ─── */
         document.addEventListener("DOMContentLoaded", () => {
             initCategoryChips();
+            initCityOptions();
             renderDishBoard();
             renderRestaurantBoard();
             checkBackendHealth();
@@ -1268,27 +1294,78 @@
             renderOrders();
         });
 
-        /* ─── BACKEND HEALTH CHECK ─── */
+        /* ─── BACKEND HEALTH & DATA CONNECTIVITY ─── */
         async function checkBackendHealth() {
             const statusDot = document.getElementById("status-dot");
             const statusText = document.getElementById("api-status-text");
 
             try {
-                const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(1500) });
+                const res = await fetch(`${API_BASE}/health`, { signal: AbortSignal.timeout(2000) });
                 if (res.ok) {
                     const data = await res.json();
                     state.apiConnected = true;
                     statusDot.style.background = "#10B981";
                     statusText.innerText = `Connected: ${data.model} (${data.items_loaded} items loaded)`;
+                    await loadDataFromBackend();
                     return;
                 }
             } catch (err) {
-                // Fallback to client-side ML mock engine
+                // Fallback to local catalog
             }
 
             state.apiConnected = false;
             statusDot.style.background = "#F59E0B";
             statusText.innerText = "Standalone Mode: Local CSAO LightGBM + Meta-Learner Engine Active";
+            initCityOptions();
+        }
+
+        async function loadDataFromBackend() {
+            try {
+                const restRes = await fetch(`${API_BASE}/v1/restaurants`);
+                if (restRes.ok) {
+                    const restData = await restRes.json();
+                    if (restData.restaurants && restData.restaurants.length > 0) {
+                        MOCK_RESTAURANTS.length = 0;
+                        MOCK_RESTAURANTS.push(...restData.restaurants);
+                    }
+                }
+
+                const dishRes = await fetch(`${API_BASE}/v1/dishes?limit=100`);
+                if (dishRes.ok) {
+                    const dishData = await dishRes.json();
+                    if (dishData.dishes && dishData.dishes.length > 0) {
+                        MOCK_DISHES.length = 0;
+                        MOCK_DISHES.push(...dishData.dishes);
+                    }
+                }
+            } catch (err) {
+                console.warn("Backend data fetch error, using local catalog", err);
+            }
+            initCityOptions();
+            renderDishBoard();
+            renderRestaurantBoard();
+        }
+
+        /* ─── CITY FILTER OPTIONS ─── */
+        function initCityOptions() {
+            const citiesSet = new Set();
+            MOCK_RESTAURANTS.forEach(r => { if (r.city) citiesSet.add(r.city); });
+            MOCK_DISHES.forEach(d => { if (d.city) citiesSet.add(d.city); });
+            const cities = ["All", ...Array.from(citiesSet).sort()];
+
+            const citySelect = document.getElementById("city-select");
+            if (!citySelect) return;
+            citySelect.innerHTML = cities.map(c => `
+                <option value="${c}" ${c === state.activeCity ? 'selected' : ''}>
+                    ${c === "All" ? "All Cities 📍" : "📍 " + c}
+                </option>
+            `).join("");
+        }
+
+        function handleCityFilter(cityVal) {
+            state.activeCity = cityVal;
+            renderDishBoard();
+            renderRestaurantBoard();
         }
 
         /* ─── CATEGORY CHIPS ─── */
@@ -1330,14 +1407,16 @@
         function renderDishBoard() {
             const grid = document.getElementById("pin-grid");
             let filtered = MOCK_DISHES.filter(d => {
+                if (state.activeCity !== "All" && d.city && d.city !== state.activeCity) return false;
                 if (state.activeCategory !== "All" && d.category !== state.activeCategory && !d.item_name.includes(state.activeCategory)) return false;
                 if (state.dietFilter === "veg" && !d.is_veg) return false;
                 if (state.dietFilter === "nonveg" && d.is_veg) return false;
                 if (state.searchQuery) {
-                    const matchName = d.item_name.toLowerCase().includes(state.searchQuery);
-                    const matchRest = d.restaurant_name.toLowerCase().includes(state.searchQuery);
-                    const matchDesc = d.desc.toLowerCase().includes(state.searchQuery);
-                    if (!matchName && !matchRest && !matchDesc) return false;
+                    const matchName = (d.item_name || "").toLowerCase().includes(state.searchQuery);
+                    const matchRest = (d.restaurant_name || "").toLowerCase().includes(state.searchQuery);
+                    const matchDesc = (d.desc || "").toLowerCase().includes(state.searchQuery);
+                    const matchCity = (d.city || "").toLowerCase().includes(state.searchQuery);
+                    if (!matchName && !matchRest && !matchDesc && !matchCity) return false;
                 }
                 return true;
             });
@@ -1408,13 +1487,33 @@
         /* ─── RENDER RESTAURANTS BOARD ─── */
         function renderRestaurantBoard() {
             const grid = document.getElementById("rest-grid");
-            grid.innerHTML = MOCK_RESTAURANTS.map(r => `
+            let filtered = MOCK_RESTAURANTS.filter(r => {
+                if (state.activeCity !== "All" && r.city && r.city !== state.activeCity) return false;
+                if (state.searchQuery) {
+                    const matchName = (r.name || "").toLowerCase().includes(state.searchQuery);
+                    const matchCuisine = (r.cuisine || "").toLowerCase().includes(state.searchQuery);
+                    const matchCity = (r.city || "").toLowerCase().includes(state.searchQuery);
+                    if (!matchName && !matchCuisine && !matchCity) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; padding: 4rem 0; font-family: var(--font-mono); color: var(--ink-faint);">
+                        No kitchens match your city or search filter.
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = filtered.map(r => `
                 <div class="rest-card">
                     <h3 class="rest-name">${r.name}</h3>
-                    <p class="rest-cuisine">${r.cuisine} Cuisine • ${r.city}</p>
+                    <p class="rest-cuisine">${r.cuisine || 'Multi'} Cuisine • ${r.city || 'India'}</p>
                     <div class="rest-spec-row">
-                        <span class="rating-stamp">★★★★☆ ${r.rating.toFixed(1)}</span>
-                        <span class="eta-stamp">⚡ ${r.delivery_time} MINS</span>
+                        <span class="rating-stamp">★★★★☆ ${parseFloat(r.rating || 4.5).toFixed(1)}</span>
+                        <span class="eta-stamp">⚡ ${r.delivery_time || 30} MINS</span>
                         <button class="add-cart-btn" onclick="openRestaurantMenu('${r.id}')">View Menu</button>
                     </div>
                 </div>
@@ -1483,12 +1582,24 @@
             renderDishBoard();
         }
 
-        /* ─── CART & CSAO THERMAL TICKET PRINTING ENGINE ─── */
-        function addToCart(itemId) {
-            const item = MOCK_DISHES.find(d => d.item_id === itemId);
+        function addToCart(itemId, dishObj = null) {
+            let item = dishObj;
+            const targetId = String(itemId);
+            if (!item) {
+                item = MOCK_DISHES.find(d => String(d.item_id) === targetId);
+            }
+            if (!item && window.DATASET && window.DATASET.menuByRest) {
+                for (const rid in window.DATASET.menuByRest) {
+                    const found = window.DATASET.menuByRest[rid].find(d => String(d.item_id) === targetId);
+                    if (found) {
+                        item = found;
+                        break;
+                    }
+                }
+            }
             if (!item) return;
 
-            const existing = state.cart.find(c => c.item_id === itemId);
+            const existing = state.cart.find(c => String(c.item_id) === targetId);
             if (existing) {
                 existing.qty += 1;
             } else {
@@ -1604,9 +1715,11 @@
                 if (matched) {
                     recs = matched;
                 } else {
-                    // Smart fallback: pick items from same restaurant not in cart
-                    recs = MOCK_DISHES
-                        .filter(d => d.restaurant_id === firstRestId && !cartIds.includes(d.item_id))
+                    const candidates = (window.DATASET && window.DATASET.menuByRest && window.DATASET.menuByRest[String(firstRestId)])
+                        ? window.DATASET.menuByRest[String(firstRestId)]
+                        : MOCK_DISHES;
+                    recs = candidates
+                        .filter(d => String(d.restaurant_id) === String(firstRestId) && !cartIds.map(String).includes(String(d.item_id)))
                         .slice(0, 2)
                         .map(d => ({
                             item_id: d.item_id,
@@ -1641,15 +1754,56 @@
         }
 
         /* ─── RESTAURANT MENU DRAWER ─── */
-        function openRestaurantMenu(restId) {
-            const rest = MOCK_RESTAURANTS.find(r => r.id === restId);
-            if (!rest) return;
+        async function openRestaurantMenu(restId) {
+            const rest = MOCK_RESTAURANTS.find(r => String(r.id) === String(restId));
+            const restName = rest ? rest.name : `Kitchen #${restId}`;
+            const restCity = rest ? rest.city : "";
+            const restCuisine = rest ? rest.cuisine : "";
+            const restRating = rest && rest.rating ? ` Rating ★${parseFloat(rest.rating).toFixed(1)}` : "";
 
-            document.getElementById("menu-rest-name").innerText = rest.name;
-            document.getElementById("menu-rest-meta").innerText = `${rest.city} • ${rest.cuisine} Cuisine • Rating ★${rest.rating}`;
+            document.getElementById("menu-rest-name").innerText = restName;
+            document.getElementById("menu-rest-meta").innerText = `${restCity} • ${restCuisine} Cuisine${restRating}`;
 
-            const items = MOCK_DISHES.filter(d => d.restaurant_id === restId);
             const container = document.getElementById("menu-items-container");
+            container.innerHTML = `<p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-faint); text-align: center; padding: 1.5rem 0;">Loading kitchen menu...</p>`;
+
+            openDrawer("menu-drawer");
+
+            let items = [];
+            if (state.apiConnected) {
+                try {
+                    const res = await fetch(`${API_BASE}/v1/restaurants/${restId}/menu`);
+                    if (res.ok) {
+                        const data = await res.json();
+                        items = (data.items || []).map(i => ({
+                            item_id: String(i.item_id),
+                            restaurant_id: String(restId),
+                            restaurant_name: restName,
+                            city: restCity,
+                            item_name: i.item_name,
+                            category: i.category,
+                            price: i.price,
+                            is_veg: i.is_veg,
+                            avg_rating: i.avg_rating,
+                            is_popular: i.is_popular,
+                            desc: `Specialty ${i.category.toLowerCase()} dish prepared fresh by ${restName}.`
+                        }));
+                    }
+                } catch (e) {}
+            }
+
+            if (items.length === 0) {
+                if (window.DATASET && window.DATASET.menuByRest && window.DATASET.menuByRest[String(restId)]) {
+                    items = window.DATASET.menuByRest[String(restId)];
+                } else {
+                    items = MOCK_DISHES.filter(d => String(d.restaurant_id) === String(restId));
+                }
+            }
+
+            if (items.length === 0) {
+                container.innerHTML = `<p style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--ink-faint); text-align: center; padding: 1.5rem 0;">No items currently listed for this kitchen.</p>`;
+                return;
+            }
 
             container.innerHTML = items.map(dish => `
                 <div class="cart-item" style="padding: 1rem 0;">
@@ -1659,17 +1813,50 @@
                             <span class="cart-item-name">${dish.item_name}</span>
                             ${dish.is_popular ? `<span style="font-family: var(--font-mono); font-size: 0.65rem; background: var(--red); color: #fff; padding: 1px 5px; border-radius: 2px;">POPULAR</span>` : ''}
                         </div>
-                        <p style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 4px;">${dish.desc}</p>
+                        <p style="font-size: 0.8rem; color: var(--ink-soft); margin-top: 4px;">${dish.desc || ''}</p>
                         <div class="price" style="margin-top: 6px;">₹${dish.price}</div>
                     </div>
                     <button class="add-cart-btn" onclick="addToCart('${dish.item_id}')">+ Add</button>
                 </div>
             `).join("");
-
-            openDrawer("menu-drawer");
         }
 
         /* ─── ORDER DISPATCH & TRACKING ─── */
+        function getRandomDispatchInfo(seedStr = "") {
+            const drivers = [
+                "Vikram S. ⭐ 4.9",
+                "Rajan K. ⭐ 4.8",
+                "Priya Patel ⭐ 4.9",
+                "Amit Sharma ⭐ 4.7",
+                "Suresh Kumar ⭐ 4.8",
+                "Deepak Verma ⭐ 4.9",
+                "Mohd. Rizwan ⭐ 4.8",
+                "Ganesh R. ⭐ 4.9",
+                "Karan Malhotra ⭐ 4.7",
+                "Sunil Yadav ⭐ 4.8"
+            ];
+            const vehicles = [
+                "🛵 MH-02-AB-1234",
+                "🏍️ DL-04-XY-8921",
+                "🛵 KA-05-EV-4512",
+                "🛵 TS-09-CD-3310",
+                "⚡ EV Bike MH-12-EQ-9082",
+                "🛵 WB-01-JK-6712",
+                "🏍️ TN-07-RZ-1145",
+                "⚡ EV Scooter DL-01-EV-5541"
+            ];
+            let hash = 0;
+            for (let i = 0; i < seedStr.length; i++) {
+                hash = (hash << 5) - hash + seedStr.charCodeAt(i);
+                hash |= 0;
+            }
+            hash = Math.abs(hash);
+            return {
+                driver: drivers[hash % drivers.length],
+                vehicle: vehicles[(hash + 3) % vehicles.length]
+            };
+        }
+
         function placeOrder() {
             if (state.cart.length === 0) {
                 showToast("Please add items to your cart first!");
@@ -1677,14 +1864,15 @@
             }
 
             const orderId = `ORD-${Math.floor(1000 + Math.random() * 9000)}`;
+            const dispatch = getRandomDispatchInfo(orderId);
             const newOrder = {
                 order_id: orderId,
                 status: "Order Placed",
                 step: 1,
                 items: state.cart.map(c => c.item_name),
                 total: state.cart.reduce((acc, c) => acc + (c.price * c.qty), 0),
-                driver: "Rajan K. ⭐ 4.8",
-                vehicle: "🛵 MH-02-AB-1234",
+                driver: dispatch.driver,
+                vehicle: dispatch.vehicle,
                 eta_mins: 25
             };
 
